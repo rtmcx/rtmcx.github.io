@@ -87,4 +87,3 @@ exclude:
   - package.json
   - spec
   - tmp
-q
