@@ -1,0 +1,359 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>SLAE Assignment 5 (3/3) &#8211; rtmcx</title>
+<meta name="description" content="SLAE Assignment 5 - Dissecting Msfvenom Payloads (Linux/x86)">
+<meta name="keywords" content="asm, code, slae">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAE Assignment 5 (3/3)">
+<meta property="og:description" content="SLAE Assignment 5 - Dissecting Msfvenom Payloads (Linux/x86)">
+<meta property="og:url" content="https://rtmcx.github.io/SLAE-Assignment-5_3/">
+<meta property="og:site_name" content="rtmcx">
+
+
+
+
+
+<link rel="canonical" href="https://rtmcx.github.io/SLAE-Assignment-5_3/">
+<link href="https://rtmcx.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="rtmcx Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://rtmcx.github.io/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="https://rtmcx.github.io/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="https://rtmcx.github.io/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://rtmcx.github.io/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://rtmcx.github.io/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://rtmcx.github.io/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" class="feature">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="https://rtmcx.github.io/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="https://rtmcx.github.io/images/CatEye.jpg" alt="rtmcx photo" class="author-photo">
+					<h4>rtmcx</h4>
+					<p>Pentester. OSCP. Aspiring shellcoder and malware analyst</p>
+				</li>
+				<li><a href="https://rtmcx.github.io/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:rtmcx@protonmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="https://rtmcx.github.io/posts/">All Posts</a></li>
+				<li><a href="https://rtmcx.github.io/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="http://www.twitter.com/rtmcx" target="_blank">Twitter</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+<div class="entry-header">
+  
+  <div class="entry-image">
+    <img src="https://rtmcx.github.io/images/assignment-1.jpg" alt="SLAE Assignment 5 (3/3)">
+  </div><!-- /.entry-image -->
+</div><!-- /.entry-header -->
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="https://rtmcx.github.io/SLAE-Assignment-5_3/" rel="bookmark" title="SLAE Assignment 5 (3/3)">SLAE Assignment 5 (3/3)</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-05-06T00:00:00+00:00">May 06, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~3 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <h1 id="dissecting-msfvenom-payloads-linuxx86">Dissecting Msfvenom Payloads (Linux/x86)</h1>
+
+<h2 id="requirements">Requirements</h2>
+
+<ul>
+  <li>Take up at least 3 shellcode samples created using msfvenom  for linux/x86</li>
+  <li>Use GDB/Ndisasm/Libemu to dissect the
+funcSonality of the shellcode</li>
+  <li>Present your analysis</li>
+</ul>
+
+<h2 id="linuxx86exec">linux/x86/exec</h2>
+
+<p>The third payload is “linux/x86/exec”.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>msfvenom -p linux/x86/exec --payload-options
+....
+     Name: Linux Execute Command
+     Module: payload/linux/x86/exec
+
+Basic options:
+Name  Current Setting  Required  Description
+----  ---------------  --------  -----------
+CMD                    yes       The <span class="nb">command </span>string to execute     
+
+Description:
+  Execute an arbitrary <span class="nb">command</span>
+</code></pre>
+</div>
+<p>So lets generate a shellcode that executes the command ‘id’ and feed it to libemu:s sctest.</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>msfvenom -p linux/x86/exec <span class="nv">CMD</span><span class="o">=</span>id R | sctest -v -sS 10000 -G exec.dot
+verbose <span class="o">=</span> 1 
+No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+No Arch selected, selecting Arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 38 bytes
+
+execve
+int execve <span class="o">(</span>const char <span class="k">*</span><span class="nv">dateiname</span><span class="o">=</span><span class="nv">00416fc0</span><span class="o">={</span>/bin/sh<span class="o">}</span>, const char <span class="k">*</span> argv[], const char <span class="k">*</span>envp[]<span class="o">)</span>;
+cpu error error accessing 0x00000004 not mapped
+
+stepcount 15
+int execve <span class="o">(</span>
+     const char <span class="k">*</span> dateiname <span class="o">=</span> 0x00416fc0 <span class="o">=</span>&gt; 
+           <span class="o">=</span> <span class="s2">"/bin/sh"</span>;
+     const char <span class="k">*</span> argv[] <span class="o">=</span> <span class="o">[</span>
+           <span class="o">=</span> 0x00416fb0 <span class="o">=</span>&gt; 
+               <span class="o">=</span> 0x00416fc0 <span class="o">=</span>&gt; 
+                   <span class="o">=</span> <span class="s2">"/bin/sh"</span>;
+           <span class="o">=</span> 0x00416fb4 <span class="o">=</span>&gt; 
+               <span class="o">=</span> 0x00416fc8 <span class="o">=</span>&gt; 
+                   <span class="o">=</span> <span class="s2">"-c"</span>;
+           <span class="o">=</span> 0x00416fb8 <span class="o">=</span>&gt; 
+               <span class="o">=</span> 0x0041701d <span class="o">=</span>&gt; 
+                   <span class="o">=</span> <span class="s2">"id"</span>;
+           <span class="o">=</span> 0x00000000 <span class="o">=</span>&gt; 
+             none;
+     <span class="o">]</span>;
+     const char <span class="k">*</span> envp[] <span class="o">=</span> 0x00000000 <span class="o">=</span>&gt; 
+         none;
+<span class="o">)</span> <span class="o">=</span>  0;
+</code></pre>
+</div>
+<p>Nice output. Since we generated a .dot-file, we can convert that file into a .png and see the flow of the code…</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot $ dot -Tpng exec.dot -o exec.png
+</code></pre>
+</div>
+<p>This resulted in this output:
+<img src="/images/exec.png" /></p>
+
+<p>Let’s take the shellcode, insert it into our ‘shellcode-executor’, compile and open up the shellcode in gdb (with gdb-peda installed).</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>gdb -q ./shellcode
+</code></pre>
+</div>
+<p>Set a breakpoint where out code is about to be executed</p>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">break</span> <span class="o">*&amp;</span><span class="n">code</span>
+<span class="n">Breakpoint</span> <span class="mi">1</span> <span class="n">at</span> <span class="mh">0x2040</span>
+<span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">r</span>
+<span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">disassemble</span>
+<span class="n">Dump</span> <span class="n">of</span> <span class="n">assembler</span> <span class="n">code</span> <span class="n">for</span> <span class="n">function</span> <span class="n">code</span><span class="o">:</span>
+<span class="o">=&gt;</span> <span class="mh">0x80002040</span> <span class="o">&lt;+</span><span class="mi">0</span><span class="o">&gt;:</span>	<span class="k">push</span>   <span class="mh">0xb</span>
+   <span class="mh">0x80002042</span> <span class="o">&lt;+</span><span class="mi">2</span><span class="o">&gt;:</span>	<span class="k">pop</span>    <span class="n">eax</span>
+   <span class="mh">0x80002043</span> <span class="o">&lt;+</span><span class="mi">3</span><span class="o">&gt;:</span>	<span class="k">cdq</span>    
+   <span class="mh">0x80002044</span> <span class="o">&lt;+</span><span class="mi">4</span><span class="o">&gt;:</span>	<span class="k">push</span>   <span class="n">edx</span>
+   <span class="mh">0x80002045</span> <span class="o">&lt;+</span><span class="mi">5</span><span class="o">&gt;:</span>	<span class="n">pushw</span>  <span class="mh">0x632d</span>
+   <span class="mh">0x80002049</span> <span class="o">&lt;+</span><span class="mi">9</span><span class="o">&gt;:</span>	<span class="k">mov</span>    <span class="n">edi</span><span class="p">,</span><span class="n">esp</span>
+   <span class="mh">0x8000204b</span> <span class="o">&lt;+</span><span class="mi">11</span><span class="o">&gt;:</span>	<span class="k">push</span>   <span class="mh">0x68732f</span>
+   <span class="mh">0x80002050</span> <span class="o">&lt;+</span><span class="mi">16</span><span class="o">&gt;:</span>	<span class="k">push</span>   <span class="mh">0x6e69622f</span>
+   <span class="mh">0x80002055</span> <span class="o">&lt;+</span><span class="mi">21</span><span class="o">&gt;:</span>	<span class="k">mov</span>    <span class="n">ebx</span><span class="p">,</span><span class="n">esp</span>
+   <span class="mh">0x80002057</span> <span class="o">&lt;+</span><span class="mi">23</span><span class="o">&gt;:</span>	<span class="k">push</span>   <span class="n">edx</span>
+   <span class="mh">0x80002058</span> <span class="o">&lt;+</span><span class="mi">24</span><span class="o">&gt;:</span>	<span class="k">call</span>   <span class="mh">0x80002060</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">+</span><span class="mi">32</span><span class="o">&gt;</span>
+   <span class="mh">0x8000205d</span> <span class="o">&lt;+</span><span class="mi">29</span><span class="o">&gt;:</span>	<span class="k">imul</span>   <span class="n">esp</span><span class="p">,</span><span class="n">DWORD</span> <span class="n">PTR</span> <span class="err">[</span><span class="n">eax</span><span class="o">+</span><span class="n">eax</span><span class="o">*</span><span class="mi">1</span><span class="o">+</span><span class="mh">0x57</span><span class="err">]</span><span class="p">,</span><span class="mh">0xcde18953</span>
+   <span class="mh">0x80002061</span> <span class="o">&lt;+</span><span class="mi">33</span><span class="o">&gt;:</span>	<span class="k">push</span>   <span class="n">ebx</span>
+   <span class="mh">0x80002062</span> <span class="o">&lt;+</span><span class="mi">34</span><span class="o">&gt;:</span>	<span class="k">mov</span>    <span class="n">ecx</span><span class="p">,</span><span class="n">esp</span>
+   <span class="mh">0x80002064</span> <span class="o">&lt;+</span><span class="mi">36</span><span class="o">&gt;:</span>	<span class="k">int</span>    <span class="mh">0x80</span>
+
+</code></pre>
+</div>
+<p>Looks like there is some mismatch in the disassembly as the call at +24 wants to jump to the instruction at +32 (which is in another instruction).</p>
+
+<p>Lets continue stepping through the code until the syscall is about to be executed and examine the stack:</p>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code> <span class="err">[</span><span class="o">----------------------------------</span><span class="n">registers</span><span class="o">-----------------------------------</span><span class="err">]</span>
+<span class="n">EAX</span><span class="o">:</span> <span class="mh">0xb</span> <span class="p">(</span><span class="sc">'\x0b'</span><span class="p">)</span>
+<span class="n">EBX</span><span class="o">:</span> <span class="mh">0xbffff2fe</span> <span class="p">(</span><span class="s">"/bin/sh"</span><span class="p">)</span>
+<span class="n">ECX</span><span class="o">:</span> <span class="mh">0xbffff2ee</span> <span class="o">--&gt;</span> <span class="mh">0xbffff2fe</span> <span class="p">(</span><span class="s">"/bin/sh"</span><span class="p">)</span>
+<span class="n">EDX</span><span class="o">:</span> <span class="mh">0x0</span> 
+<span class="n">ESI</span><span class="o">:</span> <span class="mh">0x1</span> 
+<span class="n">EDI</span><span class="o">:</span> <span class="mh">0xbffff306</span> <span class="o">--&gt;</span> <span class="mh">0x632d</span> <span class="p">(</span><span class="err">'</span><span class="o">-</span><span class="n">c</span><span class="err">'</span><span class="p">)</span>
+<span class="n">EBP</span><span class="o">:</span> <span class="mh">0xbffff328</span> <span class="o">--&gt;</span> <span class="mh">0x0</span> 
+<span class="n">ESP</span><span class="o">:</span> <span class="mh">0xbffff2ee</span> <span class="o">--&gt;</span> <span class="mh">0xbffff2fe</span> <span class="p">(</span><span class="s">"/bin/sh"</span><span class="p">)</span>
+<span class="n">EIP</span><span class="o">:</span> <span class="mh">0x80002064</span> <span class="o">--&gt;</span> <span class="mh">0x80cd</span>
+<span class="n">EFLAGS</span><span class="o">:</span> <span class="mh">0x282</span> <span class="p">(</span><span class="n">carry</span> <span class="n">parity</span> <span class="n">adjust</span> <span class="n">zero</span> <span class="n">SIGN</span> <span class="n">trap</span> <span class="n">INTERRUPT</span> <span class="n">direction</span> <span class="n">overflow</span><span class="p">)</span>
+<span class="err">[</span><span class="o">-------------------------------------</span><span class="n">code</span><span class="o">-------------------------------------</span><span class="err">]</span>
+   <span class="mh">0x8000205c</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">+</span><span class="mi">28</span><span class="o">&gt;:</span>	<span class="k">add</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="err">[</span><span class="n">ecx</span><span class="o">+</span><span class="mh">0x64</span><span class="err">]</span><span class="p">,</span><span class="n">ch</span>
+   <span class="mh">0x8000205f</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">+</span><span class="mi">31</span><span class="o">&gt;:</span>	<span class="k">add</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="err">[</span><span class="n">edi</span><span class="o">+</span><span class="mh">0x53</span><span class="err">]</span><span class="p">,</span><span class="n">dl</span>
+   <span class="mh">0x80002062</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">+</span><span class="mi">34</span><span class="o">&gt;:</span>	<span class="k">mov</span>    <span class="n">ecx</span><span class="p">,</span><span class="n">esp</span>
+<span class="o">=&gt;</span> <span class="mh">0x80002064</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">+</span><span class="mi">36</span><span class="o">&gt;:</span>	<span class="k">int</span>    <span class="mh">0x80</span>
+   <span class="mh">0x80002066</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">+</span><span class="mi">38</span><span class="o">&gt;:</span>	<span class="k">add</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[eax],</span><span class="n">al</span>
+   <span class="mh">0x80002068</span><span class="o">:</span>	<span class="k">add</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[eax],</span><span class="n">al</span>
+   <span class="mh">0x8000206a</span><span class="o">:</span>	<span class="k">add</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[eax],</span><span class="n">al</span>
+   <span class="mh">0x8000206c</span><span class="o">:</span>	<span class="k">add</span>    <span class="n">BYTE</span> <span class="n">PTR</span> <span class="p">[eax],</span><span class="n">al</span>
+<span class="err">[</span><span class="o">------------------------------------</span><span class="n">stack</span><span class="o">-------------------------------------</span><span class="err">]</span>
+<span class="mi">0000</span><span class="o">|</span> <span class="mh">0xbffff2ee</span> <span class="o">--&gt;</span> <span class="mh">0xbffff2fe</span> <span class="p">(</span><span class="s">"/bin/sh"</span><span class="p">)</span>
+<span class="mi">0004</span><span class="o">|</span> <span class="mh">0xbffff2f2</span> <span class="o">--&gt;</span> <span class="mh">0xbffff306</span> <span class="o">--&gt;</span> <span class="mh">0x632d</span> <span class="p">(</span><span class="err">'</span><span class="o">-</span><span class="n">c</span><span class="err">'</span><span class="p">)</span>
+<span class="mi">0008</span><span class="o">|</span> <span class="mh">0xbffff2f6</span> <span class="o">--&gt;</span> <span class="mh">0x8000205d</span> <span class="o">--&gt;</span> <span class="mh">0x57006469</span> <span class="p">(</span><span class="err">'</span><span class="n">id</span><span class="err">'</span><span class="p">)</span>
+<span class="mi">0012</span><span class="o">|</span> <span class="mh">0xbffff2fa</span> <span class="o">--&gt;</span> <span class="mh">0x0</span> 
+<span class="mi">0016</span><span class="o">|</span> <span class="mh">0xbffff2fe</span> <span class="p">(</span><span class="s">"/bin/sh"</span><span class="p">)</span>
+<span class="mi">0020</span><span class="o">|</span> <span class="mh">0xbffff302</span> <span class="o">--&gt;</span> <span class="mh">0x68732f</span> <span class="p">(</span><span class="err">'</span><span class="o">/</span><span class="n">sh</span><span class="err">'</span><span class="p">)</span>
+<span class="mi">0024</span><span class="o">|</span> <span class="mh">0xbffff306</span> <span class="o">--&gt;</span> <span class="mh">0x632d</span> <span class="p">(</span><span class="err">'</span><span class="o">-</span><span class="n">c</span><span class="err">'</span><span class="p">)</span>
+<span class="mi">0028</span><span class="o">|</span> <span class="mh">0xbffff30a</span> <span class="o">--&gt;</span> <span class="mh">0x6200000</span> 
+<span class="err">[</span><span class="o">------------------------------------------------------------------------------</span><span class="err">]</span>
+<span class="n">Legend</span><span class="o">:</span> <span class="n">code</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">rodata</span><span class="p">,</span> <span class="n">value</span>
+<span class="mh">0x80002064</span> <span class="k">in</span> <span class="n">code</span> <span class="p">()</span>
+<span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> 
+</code></pre>
+</div>
+
+<p>We can see that the registers has been setup to execute the syscall for Execve.</p>
+
+<p>EAX = 0xB (syscall for Execve)
+EBX = Pointer to filename (‘/bin/sh’)
+EXC = Argv for execve (same as EBX)
+EDX = NULL</p>
+
+<p>We can see on the stack how the arguments to execve, with the argument of the program we want to execute, are setup for the call.</p>
+
+<p>Continue executing the Execve-syscall and we get our execution of the ‘id’-command.</p>
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">c</span>
+<span class="n">Continuing</span><span class="p">.</span>
+<span class="n">process</span> <span class="mi">4283</span> <span class="n">is</span> <span class="n">executing</span> <span class="n">new</span> <span class="n">program</span><span class="o">:</span> <span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">dash</span>
+<span class="n">uid</span><span class="o">=</span><span class="mi">1000</span><span class="p">(</span><span class="n">rtmcx</span><span class="p">)</span> <span class="n">gid</span><span class="o">=</span><span class="mi">1000</span><span class="p">(</span><span class="n">rtmcx</span><span class="p">)</span> <span class="n">groups</span><span class="o">=</span><span class="mi">1000</span><span class="p">(</span><span class="n">rtmcx</span><span class="p">),</span><span class="mi">24</span><span class="p">(</span><span class="n">cdrom</span><span class="p">),</span><span class="mi">25</span><span class="p">(</span><span class="n">floppy</span><span class="p">),</span><span class="mi">27</span><span class="p">(</span><span class="n">sudo</span><span class="p">),</span><span class="mi">29</span><span class="p">(</span><span class="n">audio</span><span class="p">),</span><span class="mi">30</span><span class="p">(</span><span class="n">dip</span><span class="p">),</span><span class="mi">44</span><span class="p">(</span><span class="n">video</span><span class="p">),</span><span class="mi">46</span><span class="p">(</span><span class="n">plugdev</span><span class="p">),</span><span class="mi">108</span><span class="p">(</span><span class="n">netdev</span><span class="p">),</span><span class="mi">123</span><span class="p">(</span><span class="n">debian</span><span class="o">-</span><span class="n">tor</span><span class="p">),</span><span class="mi">130</span><span class="p">(</span><span class="n">bluetooth</span><span class="p">)</span>
+<span class="err">[</span><span class="n">Inferior</span> <span class="mi">2</span> <span class="p">(</span><span class="n">process</span> <span class="mi">4372</span><span class="p">)</span> <span class="n">exited</span> <span class="n">normally</span><span class="err">]</span>
+<span class="n">Warning</span><span class="o">:</span> <span class="k">not</span> <span class="n">running</span> <span class="k">or</span> <span class="n">target</span> <span class="n">is</span> <span class="n">remote</span>
+<span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> 
+</code></pre>
+</div>
+<p>Analysis done.</p>
+
+<p>All code and scripts can be found in the repository: <a href="https://github.com/rtmcx/SLAE">https://github.com/rtmcx/SLAE</a>.</p>
+
+<hr />
+
+<p>This blog post has been created for completing the requirements of the <a href="http://www.securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">SecurityTube Linux Assembly Expert certification</a>.</p>
+
+<p>Student ID: PA-0726</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="https://rtmcx.github.io/tags/#asm" title="Pages tagged asm" class="tag"><span class="term">asm</span></a><a href="https://rtmcx.github.io/tags/#code" title="Pages tagged code" class="tag"><span class="term">code</span></a><a href="https://rtmcx.github.io/tags/#slae" title="Pages tagged slae" class="tag"><span class="term">slae</span></a></span>
+        <span>Updated on <span class="entry-date date updated"><time datetime="2017-05-06 10:32:12 +0000">May 06, 2017</time></span></span>
+        <span class="author vcard"><span class="fn">rtmcx</span></span>
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://rtmcx.github.io/SLAE-Assignment-5_3/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://rtmcx.github.io/SLAE-Assignment-5_3/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=https://rtmcx.github.io/SLAE-Assignment-5_3/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="https://rtmcx.github.io/SLAE-Assignment-5_2/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="https://rtmcx.github.io/SLAE-Assignment-7/" title="SLAE Assignment 7">SLAE Assignment 7</a></h3>
+      <p>SLAE Assignment 7 - Custom crypter <a href="https://rtmcx.github.io/SLAE-Assignment-7/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-6/" title="SLAE Assignment 6">SLAE Assignment 6</a></h4>
+        <span>Published on May 09, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-5_2/" title="SLAE Assignment 5 (2/3)">SLAE Assignment 5 (2/3)</a></h4>
+        <span>Published on May 05, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 rtmcx. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://rtmcx.github.io/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="https://rtmcx.github.io/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>

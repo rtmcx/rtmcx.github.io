@@ -1,0 +1,354 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>SLAE Assignment 3 &#8211; rtmcx</title>
+<meta name="description" content="SLAE Assignment 3 - Egg hunter">
+<meta name="keywords" content="asm, code, slae">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAE Assignment 3">
+<meta property="og:description" content="SLAE Assignment 3 - Egg hunter">
+<meta property="og:url" content="https://rtmcx.github.io/SLAE-Assignment-3/">
+<meta property="og:site_name" content="rtmcx">
+
+
+
+
+
+<link rel="canonical" href="https://rtmcx.github.io/SLAE-Assignment-3/">
+<link href="https://rtmcx.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="rtmcx Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://rtmcx.github.io/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="https://rtmcx.github.io/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="https://rtmcx.github.io/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="https://rtmcx.github.io/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://rtmcx.github.io/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://rtmcx.github.io/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://rtmcx.github.io/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" class="feature">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="https://rtmcx.github.io/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="https://rtmcx.github.io/images/CatEye.jpg" alt="rtmcx photo" class="author-photo">
+					<h4>rtmcx</h4>
+					<p>Pentester. OSCP. Aspiring shellcoder and malware analyst</p>
+				</li>
+				<li><a href="https://rtmcx.github.io/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:rtmcx@protonmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="https://rtmcx.github.io/posts/">All Posts</a></li>
+				<li><a href="https://rtmcx.github.io/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="http://www.twitter.com/rtmcx" target="_blank">Twitter</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+<div class="entry-header">
+  
+  <div class="entry-image">
+    <img src="https://rtmcx.github.io/images/assignment-1.jpg" alt="SLAE Assignment 3">
+  </div><!-- /.entry-image -->
+</div><!-- /.entry-header -->
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="https://rtmcx.github.io/SLAE-Assignment-3/" rel="bookmark" title="SLAE Assignment 3">SLAE Assignment 3</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-04-23T00:00:00+00:00">April 23, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+Reading time ~4 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <h1 id="requirements">Requirements</h1>
+
+<ul>
+  <li>Study about the Egg Hunter shellcode</li>
+  <li>Create a working demo of the Egghunter</li>
+  <li>Should be configurable for different payloads</li>
+</ul>
+
+<h2 id="what-is-a-egg-hunter">What is a egg hunter?</h2>
+
+<p>Lets say that you can controll a small space in memory, but it is to small to hold the payload shellcode. At the same time, you can control more space somewhere else in memory, but you don know where in memory this larger space is.
+The idea behind the egg hunter is to inject a piece of code that searches (or hunts) the entire memory of the process for a known byte sequence, called the “egg”. Of course, we would have to add the “egg” to the beginning of the payload so the egg hunter can find it.</p>
+
+<p>When the egg is found, the execution is redirected to the place right after the egg, which contain the full payload.</p>
+
+<p>To avoid that the egg hunter finds “itself” (since the egg it’s searching for is also present in the egg hunter code), we set up the egg to appear twice in the beginning of the payload.</p>
+
+<p>So if the egg is “0xDEADBEFF”, the payload would start with “0xDEADBEFFDEADBEFF”.</p>
+
+<p>So the egg hunter needs to perform the following steps:</p>
+<ol>
+  <li>set up a starting point in memory, to start search from.</li>
+  <li>Check if the current memory address contains the “egg”.</li>
+  <li>If not, go to the next memory address.</li>
+  <li>If the egg is found, check if the egg is present twice to avoid the hunter to find itself (philosophical stuff!).</li>
+  <li>If the egg is found twice in a row, redirect execution to that memory location (or just after the egg) and start executing the payload.</li>
+</ol>
+
+<p>So when the egg hunter is executed, it will start searching through the memory looking for the egg.</p>
+
+<h2 id="small-egg-hunter">Small egg hunter</h2>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="kr">global</span> <span class="n">_start</span>
+
+<span class="kr">section</span> <span class="p">.</span><span class="n">text</span>
+<span class="n">_start</span><span class="o">:</span>
+        <span class="k">mov</span> <span class="n">eax</span><span class="p">,</span> <span class="n">esp</span>            <span class="c">; The address to start the memory search from</span>
+        <span class="k">mov</span> <span class="n">ebx</span><span class="p">,</span>  <span class="mh">0x50905090</span>    <span class="c">; This is the egg (little endian)</span>
+
+<span class="n">hunting</span><span class="o">:</span>
+        <span class="k">inc</span> <span class="n">eax</span>                 <span class="c">; Go to next byte in memory</span>
+        <span class="k">cmp</span> <span class="n">dword</span> <span class="p">[eax],</span> <span class="n">ebx</span>    <span class="c">; Compare the value in the memory address to the egg</span>
+        <span class="k">jne</span> <span class="n">hunting</span>             <span class="c">; No egg, loop (to got to next address)</span>
+
+        <span class="c">; second search, since the egg must be two times in row</span>
+        <span class="k">cmp</span> <span class="n">dword</span> <span class="err">[</span><span class="n">eax</span> <span class="o">+</span><span class="mi">4</span><span class="err">]</span><span class="p">,</span> <span class="n">ebx</span> <span class="c">; Compare the value in the memory address to the egg </span>
+        <span class="k">jne</span> <span class="n">hunting</span>             <span class="c">; No egg, loop</span>
+
+        <span class="c">; EGG found, execute payload located after egg</span>
+        <span class="k">jmp</span> <span class="n">eax</span>
+
+</code></pre>
+</div>
+
+<h2 id="egg-hunter-test-program">Egg hunter test program</h2>
+
+<p>To test the egg hunter, we create a small program that adds a shellcode somewhere in memory and our egg hunter that will search for the egg in the shellcode. The shellcode just prints “Hello World!”, but it is enough for the demo purpose here.</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code>
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+</span>
+<span class="cp">#define EGG "\x90\x50\x90\x50"
+</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">egg</span><span class="p">[]</span> <span class="o">=</span> <span class="n">EGG</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">egghunter</span> <span class="o">=</span> \
+<span class="s">"</span><span class="se">\x89\xe0\xbb\x90\x50\x90\x50\x40\x39\x18\x75\xfb\x39\x58\x04\x75\xf6\xff\xe0</span><span class="s">"</span><span class="p">;</span>
+
+<span class="c1">// The shellcode just prints "Hello World!"
+</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">shellcode</span> <span class="o">=</span> \
+<span class="s">"</span><span class="se">\xeb\x17\x31\xc0\xb0\x04\x31\xdb\xb3\x01\x59\x31\xd2\xb2\x0d\xcd\x80\x31\xc0\x04\x01</span><span class="s">"</span><span class="p">;</span>
+<span class="s">"</span><span class="se">\x89\xc3\xcd\x80\xe8\xe4\xff\xff\xff\x48\x65\x6c\x6c\x6f\x20\x57\x6f\x72\x6c\x64\x21</span><span class="s">"</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">code</span><span class="p">[</span><span class="mi">200</span><span class="p">];</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">egg</span><span class="p">);</span>
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">code</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">egg</span><span class="p">);</span>
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">code</span><span class="o">+</span><span class="mi">8</span><span class="p">,</span> <span class="n">shellcode</span><span class="p">);</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Egghunter length: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">egghunter</span><span class="p">));</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Stack location  %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">code</span><span class="p">);</span>
+        <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">ret</span><span class="p">)()</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)())</span><span class="n">egghunter</span><span class="p">;</span>
+        <span class="n">ret</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Compile and execute the program:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rtmcx@parrot <span class="nv">$ </span>gcc -m32 -fno-stack-protector -z  execstack shellcode-hunter.c -o shellcode-hunter
+rtmcx@parrot <span class="nv">$ </span>./shellcode-hunter 
+Egghunter length: 19
+Stack location  0xbf8856e4
+Hello World!
+rtmcx@parrot <span class="nv">$ </span>
+</code></pre>
+</div>
+<p>Great, it works! The egg is found, and the shellcode is executed.</p>
+
+<h2 id="mem-safe-egg">Mem safe EGG</h2>
+
+<p>The problem with the previous version of the egg hunter arises when/if the hunter tries to search a memory segments that we do not have access to.</p>
+
+<p>The answer to this problem can be found in the excellent paper 
+<a href="http://www.hick.org/code/skape/papers/egghunt-shellcode.pdf">Safely Searching Process Virtual Address Space</a> by Skape.</p>
+
+<p>The paper describes several techniques to search through the memory space in a safe maner. 
+I selected the “sigaction”-method, as this is the fastest and smallest of the techniques described.</p>
+
+<p>I will not describe the code, as the paper does that in great detail, but I have commented the code so it should be fairly easy to figure out and follow what it does.</p>
+
+<div class="language-nasm highlighter-rouge"><pre class="highlight"><code><span class="kr">global</span> <span class="n">_start</span>
+
+<span class="n">EGG</span> <span class="k">equ</span> <span class="mh">0x50905090</span>      <span class="c">; EGG in little endian</span>
+
+<span class="kr">section</span> <span class="p">.</span><span class="n">text</span>
+<span class="n">_start</span><span class="o">:</span>
+
+<span class="n">page_align</span><span class="o">:</span>
+        <span class="c">; Set up page size (which is 4096) </span>
+        <span class="k">or</span> <span class="n">cx</span><span class="p">,</span> <span class="mh">0xfff</span>    <span class="c">; Page alignment. Set cx to contain 4095</span>
+
+<span class="n">hunting</span><span class="o">:</span>
+        <span class="k">inc</span> <span class="n">ecx</span>         <span class="c">; Go to next address </span>
+
+        <span class="c">; Setup syscall "sigaction"</span>
+        <span class="k">push</span> <span class="n">byte</span> <span class="mh">0x43</span>  <span class="c">; sigaction (syscall number 67, 0x43)</span>
+        <span class="k">pop</span> <span class="n">eax</span>         <span class="c">; syscall number to eax</span>
+        <span class="k">int</span> <span class="mh">0x80</span>        <span class="c">; Execute syscall</span>
+
+        <span class="c">; compare the result</span>
+        <span class="k">cmp</span> <span class="n">al</span><span class="p">,</span> <span class="mh">0xf2</span>    <span class="c">; Is the result EFAULT?  </span>
+        <span class="k">jz</span> <span class="n">page_align</span>   <span class="c">; Yes, invalid address, try next address page</span>
+
+        <span class="c">; We have access to the page and can start to search the egg..  </span>
+
+        <span class="c">; Set EGG in eax and current address content in edi</span>
+        <span class="k">mov</span> <span class="n">eax</span><span class="p">,</span> <span class="n">EGG</span> 	<span class="c">; Place EGG in eax</span>
+        <span class="k">mov</span> <span class="n">edi</span><span class="p">,</span> <span class="n">ecx</span>    <span class="c">; Address content to compare</span>
+
+        <span class="k">scasd</span>           <span class="c">; compare the dwords in eax/edi (scasd also increments edi by 4)</span>
+        <span class="k">jnz</span> <span class="n">hunting</span>     <span class="c">; They did not match, try next address</span>
+
+        <span class="c">; The EGG should be twice in a row</span>
+        <span class="c">; so compare next 4 bytes</span>
+        <span class="k">scasd</span>           <span class="c">; compare the next 4 bytes</span>
+        <span class="k">jnz</span> <span class="n">hunting</span>     <span class="c">; They did not match, try next address</span>
+
+        <span class="c">; EGG Found</span>
+        <span class="k">jmp</span> <span class="n">edi</span>         <span class="c">; jump to address of the EGG</span>
+
+</code></pre>
+</div>
+
+<p>This version is memsafe and can be used even if ASLR is enabled (which is not the case with the first version).</p>
+
+<p>All code and scripts can be found in the repository: <a href="https://github.com/rtmcx/SLAE">https://github.com/rtmcx/SLAE</a>.</p>
+
+<hr />
+
+<p>This blog post has been created for completing the requirements of the <a href="http://www.securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">SecurityTube Linux Assembly Expert certification</a>.</p>
+
+<p>Student ID: PA-0726</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="https://rtmcx.github.io/tags/#asm" title="Pages tagged asm" class="tag"><span class="term">asm</span></a><a href="https://rtmcx.github.io/tags/#code" title="Pages tagged code" class="tag"><span class="term">code</span></a><a href="https://rtmcx.github.io/tags/#slae" title="Pages tagged slae" class="tag"><span class="term">slae</span></a></span>
+        <span>Updated on <span class="entry-date date updated"><time datetime="2017-04-23 18:51:10 +0000">April 23, 2017</time></span></span>
+        <span class="author vcard"><span class="fn">rtmcx</span></span>
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://rtmcx.github.io/SLAE-Assignment-3/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://rtmcx.github.io/SLAE-Assignment-3/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=https://rtmcx.github.io/SLAE-Assignment-3/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="https://rtmcx.github.io/SLAE-Assignment-2/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="https://rtmcx.github.io/SLAE-Assignment-7/" title="SLAE Assignment 7">SLAE Assignment 7</a></h3>
+      <p>SLAE Assignment 7 - Custom crypter <a href="https://rtmcx.github.io/SLAE-Assignment-7/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-6/" title="SLAE Assignment 6">SLAE Assignment 6</a></h4>
+        <span>Published on May 09, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="https://rtmcx.github.io/SLAE-Assignment-5_3/" title="SLAE Assignment 5 (3/3)">SLAE Assignment 5 (3/3)</a></h4>
+        <span>Published on May 06, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 rtmcx. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> using the <a href="https://mademistakes.com/work/hpstr-jekyll-theme/" rel="nofollow">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://rtmcx.github.io/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="https://rtmcx.github.io/assets/js/scripts.min.js"></script>
+
+
+
+	        
+
+</body>
+</html>
